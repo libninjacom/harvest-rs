@@ -11,18 +11,17 @@ pub struct ListClientsRequest<'a> {
 }
 impl<'a> ListClientsRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Clients> {
-        let is_active = self.is_active;
-        let updated_since = self.updated_since;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/clients"));
-        r = r;
+        let mut r = self.client.client.get("/clients");
+        r = r.push_query("is_active", &self.is_active.to_string());
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -39,18 +38,35 @@ impl<'a> CreateClientRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Client> {
         let mut r = self.client.client.post("/clients");
         r = r
-            .json(
-                json!(
-                    { "name" : self.name, "is_active" : self.is_active, "address" : self
-                    .address, "currency" : self.currency }
-                ),
+            .push_json(
+                json! {
+                    "name", self.name
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "is_active", self.is_active
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "address", self.address
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "currency", self.currency
+                },
             );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -62,15 +78,16 @@ pub struct RetrieveClientRequest<'a> {
 }
 impl<'a> RetrieveClientRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Client> {
-        let client_id = self.client_id;
-        let mut r = self.client.client.get(&format!("/clients/{client_id}"));
-        r = r;
+        let mut r = self
+            .client
+            .client
+            .get(&format!("/clients/{client_id}", client_id = self.client_id));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -82,13 +99,12 @@ pub struct RetrieveCompanyRequest<'a> {
 impl<'a> RetrieveCompanyRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Company> {
         let mut r = self.client.client.get("/company");
-        r = r;
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -103,18 +119,17 @@ pub struct ListContactsRequest<'a> {
 }
 impl<'a> ListContactsRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Contacts> {
-        let client_id = self.client_id;
-        let updated_since = self.updated_since;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/contacts"));
-        r = r;
+        let mut r = self.client.client.get("/contacts");
+        r = r.push_query("client_id", &self.client_id.to_string());
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -135,20 +150,59 @@ impl<'a> CreateContactRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Contact> {
         let mut r = self.client.client.post("/contacts");
         r = r
-            .json(
-                json!(
-                    { "client_id" : self.client_id, "title" : self.title, "first_name" :
-                    self.first_name, "last_name" : self.last_name, "email" : self.email,
-                    "phone_office" : self.phone_office, "phone_mobile" : self
-                    .phone_mobile, "fax" : self.fax }
-                ),
+            .push_json(
+                json! {
+                    "client_id", self.client_id
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "title", self.title
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "first_name", self.first_name
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "last_name", self.last_name
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "email", self.email
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "phone_office", self.phone_office
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "phone_mobile", self.phone_mobile
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "fax", self.fax
+                },
             );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -160,15 +214,16 @@ pub struct RetrieveContactRequest<'a> {
 }
 impl<'a> RetrieveContactRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Contact> {
-        let contact_id = self.contact_id;
-        let mut r = self.client.client.get(&format!("/contacts/{contact_id}"));
-        r = r;
+        let mut r = self
+            .client
+            .client
+            .get(&format!("/contacts/{contact_id}", contact_id = self.contact_id));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -182,17 +237,16 @@ pub struct ListEstimateItemCategoriesRequest<'a> {
 }
 impl<'a> ListEstimateItemCategoriesRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::EstimateItemCategories> {
-        let updated_since = self.updated_since;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/estimate_item_categories"));
-        r = r;
+        let mut r = self.client.client.get("/estimate_item_categories");
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -205,13 +259,18 @@ pub struct CreateEstimateItemCategoryRequest<'a> {
 impl<'a> CreateEstimateItemCategoryRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::EstimateItemCategory> {
         let mut r = self.client.client.post("/estimate_item_categories");
-        r = r.json(json!({ "name" : self.name }));
+        r = r
+            .push_json(
+                json! {
+                    "name", self.name
+                },
+            );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -223,18 +282,21 @@ pub struct RetrieveEstimateItemCategoryRequest<'a> {
 }
 impl<'a> RetrieveEstimateItemCategoryRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::EstimateItemCategory> {
-        let estimate_item_category_id = self.estimate_item_category_id;
         let mut r = self
             .client
             .client
-            .get(&format!("/estimate_item_categories/{estimate_item_category_id}"));
-        r = r;
+            .get(
+                &format!(
+                    "/estimate_item_categories/{estimate_item_category_id}",
+                    estimate_item_category_id = self.estimate_item_category_id
+                ),
+            );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -252,21 +314,20 @@ pub struct ListEstimatesRequest<'a> {
 }
 impl<'a> ListEstimatesRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Estimates> {
-        let client_id = self.client_id;
-        let updated_since = self.updated_since;
-        let from = self.from;
-        let to = self.to;
-        let state = self.state;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/estimates"));
-        r = r;
+        let mut r = self.client.client.get("/estimates");
+        r = r.push_query("client_id", &self.client_id.to_string());
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("from", &self.from.to_string());
+        r = r.push_query("to", &self.to.to_string());
+        r = r.push_query("state", &self.state.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -290,21 +351,77 @@ impl<'a> CreateEstimateRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Estimate> {
         let mut r = self.client.client.post("/estimates");
         r = r
-            .json(
-                json!(
-                    { "client_id" : self.client_id, "number" : self.number,
-                    "purchase_order" : self.purchase_order, "tax" : self.tax, "tax2" :
-                    self.tax_2, "discount" : self.discount, "subject" : self.subject,
-                    "notes" : self.notes, "currency" : self.currency, "issue_date" : self
-                    .issue_date, "line_items" : self.line_items }
-                ),
+            .push_json(
+                json! {
+                    "client_id", self.client_id
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "number", self.number
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "purchase_order", self.purchase_order
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "tax", self.tax
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "tax2", self.tax_2
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "discount", self.discount
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "subject", self.subject
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "notes", self.notes
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "currency", self.currency
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "issue_date", self.issue_date
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "line_items", self.line_items
+                },
             );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -316,15 +433,16 @@ pub struct RetrieveEstimateRequest<'a> {
 }
 impl<'a> RetrieveEstimateRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Estimate> {
-        let estimate_id = self.estimate_id;
-        let mut r = self.client.client.get(&format!("/estimates/{estimate_id}"));
-        r = r;
+        let mut r = self
+            .client
+            .client
+            .get(&format!("/estimates/{estimate_id}", estimate_id = self.estimate_id));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -339,21 +457,23 @@ pub struct ListMessagesForEstimateRequest<'a> {
 }
 impl<'a> ListMessagesForEstimateRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::EstimateMessages> {
-        let estimate_id = self.estimate_id;
-        let updated_since = self.updated_since;
-        let page = self.page;
-        let per_page = self.per_page;
         let mut r = self
             .client
             .client
-            .get(&format!("/estimates/{estimate_id}/messages"));
-        r = r;
+            .get(
+                &format!(
+                    "/estimates/{estimate_id}/messages", estimate_id = self.estimate_id
+                ),
+            );
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -370,25 +490,50 @@ pub struct CreateEstimateMessageRequest<'a> {
 }
 impl<'a> CreateEstimateMessageRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::EstimateMessage> {
-        let estimate_id = self.estimate_id;
         let mut r = self
             .client
             .client
-            .post(&format!("/estimates/{estimate_id}/messages"));
-        r = r
-            .json(
-                json!(
-                    { "event_type" : self.event_type, "recipients" : self.recipients,
-                    "subject" : self.subject, "body" : self.body, "send_me_a_copy" : self
-                    .send_me_a_copy }
+            .post(
+                &format!(
+                    "/estimates/{estimate_id}/messages", estimate_id = self.estimate_id
                 ),
+            );
+        r = r
+            .push_json(
+                json! {
+                    "event_type", self.event_type
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "recipients", self.recipients
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "subject", self.subject
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "body", self.body
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "send_me_a_copy", self.send_me_a_copy
+                },
             );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -403,18 +548,17 @@ pub struct ListExpenseCategoriesRequest<'a> {
 }
 impl<'a> ListExpenseCategoriesRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ExpenseCategories> {
-        let is_active = self.is_active;
-        let updated_since = self.updated_since;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/expense_categories"));
-        r = r;
+        let mut r = self.client.client.get("/expense_categories");
+        r = r.push_query("is_active", &self.is_active.to_string());
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -431,18 +575,35 @@ impl<'a> CreateExpenseCategoryRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ExpenseCategory> {
         let mut r = self.client.client.post("/expense_categories");
         r = r
-            .json(
-                json!(
-                    { "name" : self.name, "unit_name" : self.unit_name, "unit_price" :
-                    self.unit_price, "is_active" : self.is_active }
-                ),
+            .push_json(
+                json! {
+                    "name", self.name
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "unit_name", self.unit_name
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "unit_price", self.unit_price
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "is_active", self.is_active
+                },
             );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -454,18 +615,21 @@ pub struct RetrieveExpenseCategoryRequest<'a> {
 }
 impl<'a> RetrieveExpenseCategoryRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ExpenseCategory> {
-        let expense_category_id = self.expense_category_id;
         let mut r = self
             .client
             .client
-            .get(&format!("/expense_categories/{expense_category_id}"));
-        r = r;
+            .get(
+                &format!(
+                    "/expense_categories/{expense_category_id}", expense_category_id =
+                    self.expense_category_id
+                ),
+            );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -485,23 +649,22 @@ pub struct ListExpensesRequest<'a> {
 }
 impl<'a> ListExpensesRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Expenses> {
-        let user_id = self.user_id;
-        let client_id = self.client_id;
-        let project_id = self.project_id;
-        let is_billed = self.is_billed;
-        let updated_since = self.updated_since;
-        let from = self.from;
-        let to = self.to;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/expenses"));
-        r = r;
+        let mut r = self.client.client.get("/expenses");
+        r = r.push_query("user_id", &self.user_id.to_string());
+        r = r.push_query("client_id", &self.client_id.to_string());
+        r = r.push_query("project_id", &self.project_id.to_string());
+        r = r.push_query("is_billed", &self.is_billed.to_string());
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("from", &self.from.to_string());
+        r = r.push_query("to", &self.to.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -523,21 +686,65 @@ impl<'a> CreateExpenseRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Expense> {
         let mut r = self.client.client.post("/expenses");
         r = r
-            .json(
-                json!(
-                    { "user_id" : self.user_id, "project_id" : self.project_id,
-                    "expense_category_id" : self.expense_category_id, "spent_date" : self
-                    .spent_date, "units" : self.units, "total_cost" : self.total_cost,
-                    "notes" : self.notes, "billable" : self.billable, "receipt" : self
-                    .receipt }
-                ),
+            .push_json(
+                json! {
+                    "user_id", self.user_id
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "project_id", self.project_id
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "expense_category_id", self.expense_category_id
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "spent_date", self.spent_date
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "units", self.units
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "total_cost", self.total_cost
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "notes", self.notes
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "billable", self.billable
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "receipt", self.receipt
+                },
             );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -549,15 +756,16 @@ pub struct RetrieveExpenseRequest<'a> {
 }
 impl<'a> RetrieveExpenseRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Expense> {
-        let expense_id = self.expense_id;
-        let mut r = self.client.client.get(&format!("/expenses/{expense_id}"));
-        r = r;
+        let mut r = self
+            .client
+            .client
+            .get(&format!("/expenses/{expense_id}", expense_id = self.expense_id));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -571,17 +779,16 @@ pub struct ListInvoiceItemCategoriesRequest<'a> {
 }
 impl<'a> ListInvoiceItemCategoriesRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::InvoiceItemCategories> {
-        let updated_since = self.updated_since;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/invoice_item_categories"));
-        r = r;
+        let mut r = self.client.client.get("/invoice_item_categories");
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -594,13 +801,18 @@ pub struct CreateInvoiceItemCategoryRequest<'a> {
 impl<'a> CreateInvoiceItemCategoryRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::InvoiceItemCategory> {
         let mut r = self.client.client.post("/invoice_item_categories");
-        r = r.json(json!({ "name" : self.name }));
+        r = r
+            .push_json(
+                json! {
+                    "name", self.name
+                },
+            );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -612,18 +824,21 @@ pub struct RetrieveInvoiceItemCategoryRequest<'a> {
 }
 impl<'a> RetrieveInvoiceItemCategoryRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::InvoiceItemCategory> {
-        let invoice_item_category_id = self.invoice_item_category_id;
         let mut r = self
             .client
             .client
-            .get(&format!("/invoice_item_categories/{invoice_item_category_id}"));
-        r = r;
+            .get(
+                &format!(
+                    "/invoice_item_categories/{invoice_item_category_id}",
+                    invoice_item_category_id = self.invoice_item_category_id
+                ),
+            );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -642,22 +857,21 @@ pub struct ListInvoicesRequest<'a> {
 }
 impl<'a> ListInvoicesRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Invoices> {
-        let client_id = self.client_id;
-        let project_id = self.project_id;
-        let updated_since = self.updated_since;
-        let from = self.from;
-        let to = self.to;
-        let state = self.state;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/invoices"));
-        r = r;
+        let mut r = self.client.client.get("/invoices");
+        r = r.push_query("client_id", &self.client_id.to_string());
+        r = r.push_query("project_id", &self.project_id.to_string());
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("from", &self.from.to_string());
+        r = r.push_query("to", &self.to.to_string());
+        r = r.push_query("state", &self.state.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -685,28 +899,110 @@ pub struct CreateInvoiceRequest<'a> {
 impl<'a> CreateInvoiceRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Invoice> {
         let mut r = self.client.client.post("/invoices");
-        if let Some(ref line_items_import) = self.line_items_import {
-            r = r.push_query("line_items_import", &line_items_import.to_string());
+        r = r
+            .push_json(
+                json! {
+                    "client_id", self.client_id
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "retainer_id", self.retainer_id
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "estimate_id", self.estimate_id
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "number", self.number
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "purchase_order", self.purchase_order
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "tax", self.tax
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "tax2", self.tax_2
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "discount", self.discount
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "subject", self.subject
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "notes", self.notes
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "currency", self.currency
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "issue_date", self.issue_date
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "due_date", self.due_date
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "payment_term", self.payment_term
+                },
+            );
+        if let Some(line_items_import) = self.line_items_import {
+            r = r
+                .push_json(
+                    json! {
+                        "line_items_import", self.line_items_import
+                    },
+                );
         }
         r = r
-            .json(
-                json!(
-                    { "client_id" : self.client_id, "retainer_id" : self.retainer_id,
-                    "estimate_id" : self.estimate_id, "number" : self.number,
-                    "purchase_order" : self.purchase_order, "tax" : self.tax, "tax2" :
-                    self.tax_2, "discount" : self.discount, "subject" : self.subject,
-                    "notes" : self.notes, "currency" : self.currency, "issue_date" : self
-                    .issue_date, "due_date" : self.due_date, "payment_term" : self
-                    .payment_term, "line_items_import" : self.line_items_import,
-                    "line_items" : self.line_items }
-                ),
+            .push_json(
+                json! {
+                    "line_items", self.line_items
+                },
             );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -722,15 +1018,16 @@ pub struct RetrieveInvoiceRequest<'a> {
 }
 impl<'a> RetrieveInvoiceRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Invoice> {
-        let invoice_id = self.invoice_id;
-        let mut r = self.client.client.get(&format!("/invoices/{invoice_id}"));
-        r = r;
+        let mut r = self
+            .client
+            .client
+            .get(&format!("/invoices/{invoice_id}", invoice_id = self.invoice_id));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -745,18 +1042,21 @@ pub struct ListMessagesForInvoiceRequest<'a> {
 }
 impl<'a> ListMessagesForInvoiceRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::InvoiceMessages> {
-        let invoice_id = self.invoice_id;
-        let updated_since = self.updated_since;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/invoices/{invoice_id}/messages"));
-        r = r;
+        let mut r = self
+            .client
+            .client
+            .get(
+                &format!("/invoices/{invoice_id}/messages", invoice_id = self.invoice_id),
+            );
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -776,25 +1076,66 @@ pub struct CreateInvoiceMessageRequest<'a> {
 }
 impl<'a> CreateInvoiceMessageRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::InvoiceMessage> {
-        let invoice_id = self.invoice_id;
-        let mut r = self.client.client.post(&format!("/invoices/{invoice_id}/messages"));
+        let mut r = self
+            .client
+            .client
+            .post(
+                &format!("/invoices/{invoice_id}/messages", invoice_id = self.invoice_id),
+            );
         r = r
-            .json(
-                json!(
-                    { "event_type" : self.event_type, "recipients" : self.recipients,
-                    "subject" : self.subject, "body" : self.body,
-                    "include_link_to_client_invoice" : self
-                    .include_link_to_client_invoice, "attach_pdf" : self.attach_pdf,
-                    "send_me_a_copy" : self.send_me_a_copy, "thank_you" : self.thank_you
-                    }
-                ),
+            .push_json(
+                json! {
+                    "event_type", self.event_type
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "recipients", self.recipients
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "subject", self.subject
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "body", self.body
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "include_link_to_client_invoice", self.include_link_to_client_invoice
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "attach_pdf", self.attach_pdf
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "send_me_a_copy", self.send_me_a_copy
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "thank_you", self.thank_you
+                },
             );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -809,18 +1150,21 @@ pub struct ListPaymentsForInvoiceRequest<'a> {
 }
 impl<'a> ListPaymentsForInvoiceRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::InvoicePayments> {
-        let invoice_id = self.invoice_id;
-        let updated_since = self.updated_since;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/invoices/{invoice_id}/payments"));
-        r = r;
+        let mut r = self
+            .client
+            .client
+            .get(
+                &format!("/invoices/{invoice_id}/payments", invoice_id = self.invoice_id),
+            );
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -836,21 +1180,42 @@ pub struct CreateInvoicePaymentRequest<'a> {
 }
 impl<'a> CreateInvoicePaymentRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::InvoicePayment> {
-        let invoice_id = self.invoice_id;
-        let mut r = self.client.client.post(&format!("/invoices/{invoice_id}/payments"));
+        let mut r = self
+            .client
+            .client
+            .post(
+                &format!("/invoices/{invoice_id}/payments", invoice_id = self.invoice_id),
+            );
         r = r
-            .json(
-                json!(
-                    { "amount" : self.amount, "paid_at" : self.paid_at, "paid_date" :
-                    self.paid_date, "notes" : self.notes }
-                ),
+            .push_json(
+                json! {
+                    "amount", self.amount
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "paid_at", self.paid_at
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "paid_date", self.paid_date
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "notes", self.notes
+                },
             );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -866,19 +1231,18 @@ pub struct ListProjectsRequest<'a> {
 }
 impl<'a> ListProjectsRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Projects> {
-        let is_active = self.is_active;
-        let client_id = self.client_id;
-        let updated_since = self.updated_since;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/projects"));
-        r = r;
+        let mut r = self.client.client.get("/projects");
+        r = r.push_query("is_active", &self.is_active.to_string());
+        r = r.push_query("client_id", &self.client_id.to_string());
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -911,28 +1275,132 @@ impl<'a> CreateProjectRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Project> {
         let mut r = self.client.client.post("/projects");
         r = r
-            .json(
-                json!(
-                    { "client_id" : self.client_id, "name" : self.name, "code" : self
-                    .code, "is_active" : self.is_active, "is_billable" : self
-                    .is_billable, "is_fixed_fee" : self.is_fixed_fee, "bill_by" : self
-                    .bill_by, "hourly_rate" : self.hourly_rate, "budget" : self.budget,
-                    "budget_by" : self.budget_by, "budget_is_monthly" : self
-                    .budget_is_monthly, "notify_when_over_budget" : self
-                    .notify_when_over_budget, "over_budget_notification_percentage" :
-                    self.over_budget_notification_percentage, "show_budget_to_all" : self
-                    .show_budget_to_all, "cost_budget" : self.cost_budget,
-                    "cost_budget_include_expenses" : self.cost_budget_include_expenses,
-                    "fee" : self.fee, "notes" : self.notes, "starts_on" : self.starts_on,
-                    "ends_on" : self.ends_on }
-                ),
+            .push_json(
+                json! {
+                    "client_id", self.client_id
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "name", self.name
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "code", self.code
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "is_active", self.is_active
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "is_billable", self.is_billable
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "is_fixed_fee", self.is_fixed_fee
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "bill_by", self.bill_by
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "hourly_rate", self.hourly_rate
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "budget", self.budget
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "budget_by", self.budget_by
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "budget_is_monthly", self.budget_is_monthly
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "notify_when_over_budget", self.notify_when_over_budget
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "over_budget_notification_percentage", self
+                    .over_budget_notification_percentage
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "show_budget_to_all", self.show_budget_to_all
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "cost_budget", self.cost_budget
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "cost_budget_include_expenses", self.cost_budget_include_expenses
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "fee", self.fee
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "notes", self.notes
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "starts_on", self.starts_on
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "ends_on", self.ends_on
+                },
             );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -944,15 +1412,16 @@ pub struct RetrieveProjectRequest<'a> {
 }
 impl<'a> RetrieveProjectRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Project> {
-        let project_id = self.project_id;
-        let mut r = self.client.client.get(&format!("/projects/{project_id}"));
-        r = r;
+        let mut r = self
+            .client
+            .client
+            .get(&format!("/projects/{project_id}", project_id = self.project_id));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -968,22 +1437,25 @@ pub struct ListTaskAssignmentsForSpecificProjectRequest<'a> {
 }
 impl<'a> ListTaskAssignmentsForSpecificProjectRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TaskAssignments> {
-        let project_id = self.project_id;
-        let is_active = self.is_active;
-        let updated_since = self.updated_since;
-        let page = self.page;
-        let per_page = self.per_page;
         let mut r = self
             .client
             .client
-            .get(&format!("/projects/{project_id}/task_assignments"));
-        r = r;
+            .get(
+                &format!(
+                    "/projects/{project_id}/task_assignments", project_id = self
+                    .project_id
+                ),
+            );
+        r = r.push_query("is_active", &self.is_active.to_string());
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1000,25 +1472,51 @@ pub struct CreateTaskAssignmentRequest<'a> {
 }
 impl<'a> CreateTaskAssignmentRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TaskAssignment> {
-        let project_id = self.project_id;
         let mut r = self
             .client
             .client
-            .post(&format!("/projects/{project_id}/task_assignments"));
-        r = r
-            .json(
-                json!(
-                    { "task_id" : self.task_id, "is_active" : self.is_active, "billable"
-                    : self.billable, "hourly_rate" : self.hourly_rate, "budget" : self
-                    .budget }
+            .post(
+                &format!(
+                    "/projects/{project_id}/task_assignments", project_id = self
+                    .project_id
                 ),
+            );
+        r = r
+            .push_json(
+                json! {
+                    "task_id", self.task_id
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "is_active", self.is_active
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "billable", self.billable
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "hourly_rate", self.hourly_rate
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "budget", self.budget
+                },
             );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1031,21 +1529,22 @@ pub struct RetrieveTaskAssignmentRequest<'a> {
 }
 impl<'a> RetrieveTaskAssignmentRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TaskAssignment> {
-        let project_id = self.project_id;
-        let task_assignment_id = self.task_assignment_id;
         let mut r = self
             .client
             .client
             .get(
-                &format!("/projects/{project_id}/task_assignments/{task_assignment_id}"),
+                &format!(
+                    "/projects/{project_id}/task_assignments/{task_assignment_id}",
+                    project_id = self.project_id, task_assignment_id = self
+                    .task_assignment_id
+                ),
             );
-        r = r;
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1062,23 +1561,26 @@ pub struct ListUserAssignmentsForSpecificProjectRequest<'a> {
 }
 impl<'a> ListUserAssignmentsForSpecificProjectRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::UserAssignments> {
-        let project_id = self.project_id;
-        let user_id = self.user_id;
-        let is_active = self.is_active;
-        let updated_since = self.updated_since;
-        let page = self.page;
-        let per_page = self.per_page;
         let mut r = self
             .client
             .client
-            .get(&format!("/projects/{project_id}/user_assignments"));
-        r = r;
+            .get(
+                &format!(
+                    "/projects/{project_id}/user_assignments", project_id = self
+                    .project_id
+                ),
+            );
+        r = r.push_query("user_id", &self.user_id.to_string());
+        r = r.push_query("is_active", &self.is_active.to_string());
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1096,26 +1598,57 @@ pub struct CreateUserAssignmentRequest<'a> {
 }
 impl<'a> CreateUserAssignmentRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::UserAssignment> {
-        let project_id = self.project_id;
         let mut r = self
             .client
             .client
-            .post(&format!("/projects/{project_id}/user_assignments"));
-        r = r
-            .json(
-                json!(
-                    { "user_id" : self.user_id, "is_active" : self.is_active,
-                    "is_project_manager" : self.is_project_manager, "use_default_rates" :
-                    self.use_default_rates, "hourly_rate" : self.hourly_rate, "budget" :
-                    self.budget }
+            .post(
+                &format!(
+                    "/projects/{project_id}/user_assignments", project_id = self
+                    .project_id
                 ),
+            );
+        r = r
+            .push_json(
+                json! {
+                    "user_id", self.user_id
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "is_active", self.is_active
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "is_project_manager", self.is_project_manager
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "use_default_rates", self.use_default_rates
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "hourly_rate", self.hourly_rate
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "budget", self.budget
+                },
             );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1128,21 +1661,22 @@ pub struct RetrieveUserAssignmentRequest<'a> {
 }
 impl<'a> RetrieveUserAssignmentRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::UserAssignment> {
-        let project_id = self.project_id;
-        let user_assignment_id = self.user_assignment_id;
         let mut r = self
             .client
             .client
             .get(
-                &format!("/projects/{project_id}/user_assignments/{user_assignment_id}"),
+                &format!(
+                    "/projects/{project_id}/user_assignments/{user_assignment_id}",
+                    project_id = self.project_id, user_assignment_id = self
+                    .user_assignment_id
+                ),
             );
-        r = r;
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1157,18 +1691,17 @@ pub struct ExpenseCategoriesReportRequest<'a> {
 }
 impl<'a> ExpenseCategoriesReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ExpenseReportsResults> {
-        let from = self.from;
-        let to = self.to;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/reports/expenses/categories"));
-        r = r;
+        let mut r = self.client.client.get("/reports/expenses/categories");
+        r = r.push_query("from", &self.from.to_string());
+        r = r.push_query("to", &self.to.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1183,18 +1716,17 @@ pub struct ClientsExpensesReportRequest<'a> {
 }
 impl<'a> ClientsExpensesReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ExpenseReportsResults> {
-        let from = self.from;
-        let to = self.to;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/reports/expenses/clients"));
-        r = r;
+        let mut r = self.client.client.get("/reports/expenses/clients");
+        r = r.push_query("from", &self.from.to_string());
+        r = r.push_query("to", &self.to.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1209,18 +1741,17 @@ pub struct ProjectsExpensesReportRequest<'a> {
 }
 impl<'a> ProjectsExpensesReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ExpenseReportsResults> {
-        let from = self.from;
-        let to = self.to;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/reports/expenses/projects"));
-        r = r;
+        let mut r = self.client.client.get("/reports/expenses/projects");
+        r = r.push_query("from", &self.from.to_string());
+        r = r.push_query("to", &self.to.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1235,18 +1766,17 @@ pub struct TeamExpensesReportRequest<'a> {
 }
 impl<'a> TeamExpensesReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ExpenseReportsResults> {
-        let from = self.from;
-        let to = self.to;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/reports/expenses/team"));
-        r = r;
+        let mut r = self.client.client.get("/reports/expenses/team");
+        r = r.push_query("from", &self.from.to_string());
+        r = r.push_query("to", &self.to.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1260,17 +1790,16 @@ pub struct ProjectBudgetReportRequest<'a> {
 }
 impl<'a> ProjectBudgetReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ProjectBudgetReportResults> {
-        let page = self.page;
-        let per_page = self.per_page;
-        let is_active = self.is_active;
-        let mut r = self.client.client.get(&format!("/reports/project_budget"));
-        r = r;
+        let mut r = self.client.client.get("/reports/project_budget");
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
+        r = r.push_query("is_active", &self.is_active.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1285,18 +1814,17 @@ pub struct ClientsTimeReportRequest<'a> {
 }
 impl<'a> ClientsTimeReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TimeReportsResults> {
-        let from = self.from;
-        let to = self.to;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/reports/time/clients"));
-        r = r;
+        let mut r = self.client.client.get("/reports/time/clients");
+        r = r.push_query("from", &self.from.to_string());
+        r = r.push_query("to", &self.to.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1311,18 +1839,17 @@ pub struct ProjectsTimeReportRequest<'a> {
 }
 impl<'a> ProjectsTimeReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TimeReportsResults> {
-        let from = self.from;
-        let to = self.to;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/reports/time/projects"));
-        r = r;
+        let mut r = self.client.client.get("/reports/time/projects");
+        r = r.push_query("from", &self.from.to_string());
+        r = r.push_query("to", &self.to.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1337,18 +1864,17 @@ pub struct TasksReportRequest<'a> {
 }
 impl<'a> TasksReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TimeReportsResults> {
-        let from = self.from;
-        let to = self.to;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/reports/time/tasks"));
-        r = r;
+        let mut r = self.client.client.get("/reports/time/tasks");
+        r = r.push_query("from", &self.from.to_string());
+        r = r.push_query("to", &self.to.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1363,18 +1889,17 @@ pub struct TeamTimeReportRequest<'a> {
 }
 impl<'a> TeamTimeReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TimeReportsResults> {
-        let from = self.from;
-        let to = self.to;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/reports/time/team"));
-        r = r;
+        let mut r = self.client.client.get("/reports/time/team");
+        r = r.push_query("from", &self.from.to_string());
+        r = r.push_query("to", &self.to.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1389,18 +1914,17 @@ pub struct UninvoicedReportRequest<'a> {
 }
 impl<'a> UninvoicedReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::UninvoicedReportResults> {
-        let from = self.from;
-        let to = self.to;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/reports/uninvoiced"));
-        r = r;
+        let mut r = self.client.client.get("/reports/uninvoiced");
+        r = r.push_query("from", &self.from.to_string());
+        r = r.push_query("to", &self.to.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1413,16 +1937,15 @@ pub struct ListRolesRequest<'a> {
 }
 impl<'a> ListRolesRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Roles> {
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/roles"));
-        r = r;
+        let mut r = self.client.client.get("/roles");
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1436,13 +1959,24 @@ pub struct CreateRoleRequest<'a> {
 impl<'a> CreateRoleRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Role> {
         let mut r = self.client.client.post("/roles");
-        r = r.json(json!({ "name" : self.name, "user_ids" : self.user_ids }));
+        r = r
+            .push_json(
+                json! {
+                    "name", self.name
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "user_ids", self.user_ids
+                },
+            );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1454,15 +1988,16 @@ pub struct RetrieveRoleRequest<'a> {
 }
 impl<'a> RetrieveRoleRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Role> {
-        let role_id = self.role_id;
-        let mut r = self.client.client.get(&format!("/roles/{role_id}"));
-        r = r;
+        let mut r = self
+            .client
+            .client
+            .get(&format!("/roles/{role_id}", role_id = self.role_id));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1477,18 +2012,17 @@ pub struct ListTaskAssignmentsRequest<'a> {
 }
 impl<'a> ListTaskAssignmentsRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TaskAssignments> {
-        let is_active = self.is_active;
-        let updated_since = self.updated_since;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/task_assignments"));
-        r = r;
+        let mut r = self.client.client.get("/task_assignments");
+        r = r.push_query("is_active", &self.is_active.to_string());
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1503,18 +2037,17 @@ pub struct ListTasksRequest<'a> {
 }
 impl<'a> ListTasksRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Tasks> {
-        let is_active = self.is_active;
-        let updated_since = self.updated_since;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/tasks"));
-        r = r;
+        let mut r = self.client.client.get("/tasks");
+        r = r.push_query("is_active", &self.is_active.to_string());
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1532,20 +2065,41 @@ impl<'a> CreateTaskRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Task> {
         let mut r = self.client.client.post("/tasks");
         r = r
-            .json(
-                json!(
-                    { "name" : self.name, "billable_by_default" : self
-                    .billable_by_default, "default_hourly_rate" : self
-                    .default_hourly_rate, "is_default" : self.is_default, "is_active" :
-                    self.is_active }
-                ),
+            .push_json(
+                json! {
+                    "name", self.name
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "billable_by_default", self.billable_by_default
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "default_hourly_rate", self.default_hourly_rate
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "is_default", self.is_default
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "is_active", self.is_active
+                },
             );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1557,15 +2111,16 @@ pub struct RetrieveTaskRequest<'a> {
 }
 impl<'a> RetrieveTaskRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Task> {
-        let task_id = self.task_id;
-        let mut r = self.client.client.get(&format!("/tasks/{task_id}"));
-        r = r;
+        let mut r = self
+            .client
+            .client
+            .get(&format!("/tasks/{task_id}", task_id = self.task_id));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1588,26 +2143,29 @@ pub struct ListTimeEntriesRequest<'a> {
 }
 impl<'a> ListTimeEntriesRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TimeEntries> {
-        let user_id = self.user_id;
-        let client_id = self.client_id;
-        let project_id = self.project_id;
-        let task_id = self.task_id;
-        let external_reference_id = self.external_reference_id;
-        let is_billed = self.is_billed;
-        let is_running = self.is_running;
-        let updated_since = self.updated_since;
-        let from = self.from;
-        let to = self.to;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/time_entries"));
-        r = r;
+        let mut r = self.client.client.get("/time_entries");
+        r = r.push_query("user_id", &self.user_id.to_string());
+        r = r.push_query("client_id", &self.client_id.to_string());
+        r = r.push_query("project_id", &self.project_id.to_string());
+        r = r.push_query("task_id", &self.task_id.to_string());
+        r = r
+            .push_query(
+                "external_reference_id",
+                &self.external_reference_id.to_string(),
+            );
+        r = r.push_query("is_billed", &self.is_billed.to_string());
+        r = r.push_query("is_running", &self.is_running.to_string());
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("from", &self.from.to_string());
+        r = r.push_query("to", &self.to.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1628,25 +2186,68 @@ pub struct CreateTimeEntryRequest<'a> {
 impl<'a> CreateTimeEntryRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TimeEntry> {
         let mut r = self.client.client.post("/time_entries");
-        if let Some(ref external_reference) = self.external_reference {
-            r = r.push_query("external_reference", &external_reference.to_string());
+        r = r
+            .push_json(
+                json! {
+                    "user_id", self.user_id
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "project_id", self.project_id
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "task_id", self.task_id
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "spent_date", self.spent_date
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "started_time", self.started_time
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "ended_time", self.ended_time
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "notes", self.notes
+                },
+            );
+        if let Some(external_reference) = self.external_reference {
+            r = r
+                .push_json(
+                    json! {
+                        "external_reference", self.external_reference
+                    },
+                );
         }
         r = r
-            .json(
-                json!(
-                    { "user_id" : self.user_id, "project_id" : self.project_id, "task_id"
-                    : self.task_id, "spent_date" : self.spent_date, "started_time" : self
-                    .started_time, "ended_time" : self.ended_time, "notes" : self.notes,
-                    "external_reference" : self.external_reference, "hours" : self.hours
-                    }
-                ),
+            .push_json(
+                json! {
+                    "hours", self.hours
+                },
             );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1662,15 +2263,20 @@ pub struct RetrieveTimeEntryRequest<'a> {
 }
 impl<'a> RetrieveTimeEntryRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TimeEntry> {
-        let time_entry_id = self.time_entry_id;
-        let mut r = self.client.client.get(&format!("/time_entries/{time_entry_id}"));
-        r = r;
+        let mut r = self
+            .client
+            .client
+            .get(
+                &format!(
+                    "/time_entries/{time_entry_id}", time_entry_id = self.time_entry_id
+                ),
+            );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1686,19 +2292,18 @@ pub struct ListUserAssignmentsRequest<'a> {
 }
 impl<'a> ListUserAssignmentsRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::UserAssignments> {
-        let user_id = self.user_id;
-        let is_active = self.is_active;
-        let updated_since = self.updated_since;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/user_assignments"));
-        r = r;
+        let mut r = self.client.client.get("/user_assignments");
+        r = r.push_query("user_id", &self.user_id.to_string());
+        r = r.push_query("is_active", &self.is_active.to_string());
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1713,18 +2318,17 @@ pub struct ListUsersRequest<'a> {
 }
 impl<'a> ListUsersRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Users> {
-        let is_active = self.is_active;
-        let updated_since = self.updated_since;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/users"));
-        r = r;
+        let mut r = self.client.client.get("/users");
+        r = r.push_query("is_active", &self.is_active.to_string());
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1748,24 +2352,78 @@ impl<'a> CreateUserRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::User> {
         let mut r = self.client.client.post("/users");
         r = r
-            .json(
-                json!(
-                    { "first_name" : self.first_name, "last_name" : self.last_name,
-                    "email" : self.email, "timezone" : self.timezone,
-                    "has_access_to_all_future_projects" : self
-                    .has_access_to_all_future_projects, "is_contractor" : self
-                    .is_contractor, "is_active" : self.is_active, "weekly_capacity" :
-                    self.weekly_capacity, "default_hourly_rate" : self
-                    .default_hourly_rate, "cost_rate" : self.cost_rate, "roles" : self
-                    .roles }
-                ),
+            .push_json(
+                json! {
+                    "first_name", self.first_name
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "last_name", self.last_name
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "email", self.email
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "timezone", self.timezone
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "has_access_to_all_future_projects", self
+                    .has_access_to_all_future_projects
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "is_contractor", self.is_contractor
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "is_active", self.is_active
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "weekly_capacity", self.weekly_capacity
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "default_hourly_rate", self.default_hourly_rate
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "cost_rate", self.cost_rate
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "roles", self.roles
+                },
             );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1777,13 +2435,12 @@ pub struct RetrieveTheCurrentlyAuthenticatedUserRequest<'a> {
 impl<'a> RetrieveTheCurrentlyAuthenticatedUserRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::User> {
         let mut r = self.client.client.get("/users/me");
-        r = r;
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1796,16 +2453,15 @@ pub struct ListActiveProjectAssignmentsForTheCurrentlyAuthenticatedUserRequest<'
 }
 impl<'a> ListActiveProjectAssignmentsForTheCurrentlyAuthenticatedUserRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ProjectAssignments> {
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/users/me/project_assignments"));
-        r = r;
+        let mut r = self.client.client.get("/users/me/project_assignments");
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1817,15 +2473,16 @@ pub struct RetrieveUserRequest<'a> {
 }
 impl<'a> RetrieveUserRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::User> {
-        let user_id = self.user_id;
-        let mut r = self.client.client.get(&format!("/users/{user_id}"));
-        r = r;
+        let mut r = self
+            .client
+            .client
+            .get(&format!("/users/{user_id}", user_id = self.user_id));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1839,17 +2496,18 @@ pub struct ListBillableRatesForSpecificUserRequest<'a> {
 }
 impl<'a> ListBillableRatesForSpecificUserRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::BillableRates> {
-        let user_id = self.user_id;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/users/{user_id}/billable_rates"));
-        r = r;
+        let mut r = self
+            .client
+            .client
+            .get(&format!("/users/{user_id}/billable_rates", user_id = self.user_id));
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1863,15 +2521,28 @@ pub struct CreateBillableRateRequest<'a> {
 }
 impl<'a> CreateBillableRateRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::BillableRate> {
-        let user_id = self.user_id;
-        let mut r = self.client.client.post(&format!("/users/{user_id}/billable_rates"));
-        r = r.json(json!({ "amount" : self.amount, "start_date" : self.start_date }));
+        let mut r = self
+            .client
+            .client
+            .post(&format!("/users/{user_id}/billable_rates", user_id = self.user_id));
+        r = r
+            .push_json(
+                json! {
+                    "amount", self.amount
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "start_date", self.start_date
+                },
+            );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1884,19 +2555,21 @@ pub struct RetrieveBillableRateRequest<'a> {
 }
 impl<'a> RetrieveBillableRateRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::BillableRate> {
-        let user_id = self.user_id;
-        let billable_rate_id = self.billable_rate_id;
         let mut r = self
             .client
             .client
-            .get(&format!("/users/{user_id}/billable_rates/{billable_rate_id}"));
-        r = r;
+            .get(
+                &format!(
+                    "/users/{user_id}/billable_rates/{billable_rate_id}", user_id = self
+                    .user_id, billable_rate_id = self.billable_rate_id
+                ),
+            );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1910,17 +2583,18 @@ pub struct ListCostRatesForSpecificUserRequest<'a> {
 }
 impl<'a> ListCostRatesForSpecificUserRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::CostRates> {
-        let user_id = self.user_id;
-        let page = self.page;
-        let per_page = self.per_page;
-        let mut r = self.client.client.get(&format!("/users/{user_id}/cost_rates"));
-        r = r;
+        let mut r = self
+            .client
+            .client
+            .get(&format!("/users/{user_id}/cost_rates", user_id = self.user_id));
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1934,15 +2608,28 @@ pub struct CreateCostRateRequest<'a> {
 }
 impl<'a> CreateCostRateRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::CostRate> {
-        let user_id = self.user_id;
-        let mut r = self.client.client.post(&format!("/users/{user_id}/cost_rates"));
-        r = r.json(json!({ "amount" : self.amount, "start_date" : self.start_date }));
+        let mut r = self
+            .client
+            .client
+            .post(&format!("/users/{user_id}/cost_rates", user_id = self.user_id));
+        r = r
+            .push_json(
+                json! {
+                    "amount", self.amount
+                },
+            );
+        r = r
+            .push_json(
+                json! {
+                    "start_date", self.start_date
+                },
+            );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1955,19 +2642,21 @@ pub struct RetrieveCostRateRequest<'a> {
 }
 impl<'a> RetrieveCostRateRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::CostRate> {
-        let user_id = self.user_id;
-        let cost_rate_id = self.cost_rate_id;
         let mut r = self
             .client
             .client
-            .get(&format!("/users/{user_id}/cost_rates/{cost_rate_id}"));
-        r = r;
+            .get(
+                &format!(
+                    "/users/{user_id}/cost_rates/{cost_rate_id}", user_id = self.user_id,
+                    cost_rate_id = self.cost_rate_id
+                ),
+            );
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
@@ -1982,21 +2671,21 @@ pub struct ListActiveProjectAssignmentsRequest<'a> {
 }
 impl<'a> ListActiveProjectAssignmentsRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ProjectAssignments> {
-        let user_id = self.user_id;
-        let updated_since = self.updated_since;
-        let page = self.page;
-        let per_page = self.per_page;
         let mut r = self
             .client
             .client
-            .get(&format!("/users/{user_id}/project_assignments"));
-        r = r;
+            .get(
+                &format!("/users/{user_id}/project_assignments", user_id = self.user_id),
+            );
+        r = r.push_query("updated_since", &self.updated_since.to_string());
+        r = r.push_query("page", &self.page.to_string());
+        r = r.push_query("per_page", &self.per_page.to_string());
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
             Ok(res) => res.json().await.map_err(|e| anyhow::anyhow!("{:?}", e)),
             Err(res) => {
-                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e));
+                let text = res.text().await.map_err(|e| anyhow::anyhow!("{:?}", e))?;
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
