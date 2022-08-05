@@ -1,4 +1,4 @@
-//! [`PetStoreClient`](struct.PetStoreClient.html) is the main entry point for this library.
+//! [`HarvestClient`](struct.HarvestClient.html) is the main entry point for this library.
 //!
 //! Library created with [`libninja`](https://www.libninja.com).
 #![allow(non_camel_case_types)]
