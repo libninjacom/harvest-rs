@@ -4,18 +4,26 @@ use crate::model::*;
 use crate::HarvestClient;
 pub struct ListClientsRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub is_active: bool,
-    pub updated_since: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub is_active: Option<bool>,
+    pub updated_since: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListClientsRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Clients> {
         let mut r = self.client.client.get("/clients");
-        r = r.push_query("is_active", &self.is_active.to_string());
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref is_active) = self.is_active {
+            r = r.push_query("is_active", &is_active.to_string());
+        }
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -25,6 +33,22 @@ impl<'a> ListClientsRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn is_active(mut self, is_active: bool) -> Self {
+        self.is_active = Some(is_active);
+        self
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateClientRequest<'a> {
@@ -92,18 +116,26 @@ impl<'a> RetrieveCompanyRequest<'a> {
 }
 pub struct ListContactsRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub client_id: i64,
-    pub updated_since: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub client_id: Option<i64>,
+    pub updated_since: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListContactsRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Contacts> {
         let mut r = self.client.client.get("/contacts");
-        r = r.push_query("client_id", &self.client_id.to_string());
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref client_id) = self.client_id {
+            r = r.push_query("client_id", &client_id.to_string());
+        }
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -113,6 +145,22 @@ impl<'a> ListContactsRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn client_id(mut self, client_id: i64) -> Self {
+        self.client_id = Some(client_id);
+        self
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateContactRequest<'a> {
@@ -171,16 +219,22 @@ impl<'a> RetrieveContactRequest<'a> {
 }
 pub struct ListEstimateItemCategoriesRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub updated_since: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub updated_since: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListEstimateItemCategoriesRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::EstimateItemCategories> {
         let mut r = self.client.client.get("/estimate_item_categories");
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -190,6 +244,18 @@ impl<'a> ListEstimateItemCategoriesRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateEstimateItemCategoryRequest<'a> {
@@ -239,24 +305,38 @@ impl<'a> RetrieveEstimateItemCategoryRequest<'a> {
 }
 pub struct ListEstimatesRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub client_id: i64,
-    pub updated_since: String,
-    pub from: String,
-    pub to: String,
-    pub state: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub client_id: Option<i64>,
+    pub updated_since: Option<String>,
+    pub from: Option<String>,
+    pub to: Option<String>,
+    pub state: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListEstimatesRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Estimates> {
         let mut r = self.client.client.get("/estimates");
-        r = r.push_query("client_id", &self.client_id.to_string());
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("from", &self.from.to_string());
-        r = r.push_query("to", &self.to.to_string());
-        r = r.push_query("state", &self.state.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref client_id) = self.client_id {
+            r = r.push_query("client_id", &client_id.to_string());
+        }
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref from) = self.from {
+            r = r.push_query("from", &from.to_string());
+        }
+        if let Some(ref to) = self.to {
+            r = r.push_query("to", &to.to_string());
+        }
+        if let Some(ref state) = self.state {
+            r = r.push_query("state", &state.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -266,6 +346,34 @@ impl<'a> ListEstimatesRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn client_id(mut self, client_id: i64) -> Self {
+        self.client_id = Some(client_id);
+        self
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn from(mut self, from: String) -> Self {
+        self.from = Some(from);
+        self
+    }
+    pub fn to(mut self, to: String) -> Self {
+        self.to = Some(to);
+        self
+    }
+    pub fn state(mut self, state: String) -> Self {
+        self.state = Some(state);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateEstimateRequest<'a> {
@@ -331,9 +439,9 @@ impl<'a> RetrieveEstimateRequest<'a> {
 pub struct ListMessagesForEstimateRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub estimate_id: String,
-    pub updated_since: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub updated_since: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListMessagesForEstimateRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::EstimateMessages> {
@@ -345,9 +453,15 @@ impl<'a> ListMessagesForEstimateRequest<'a> {
                     "/estimates/{estimate_id}/messages", estimate_id = self.estimate_id
                 ),
             );
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -357,6 +471,18 @@ impl<'a> ListMessagesForEstimateRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateEstimateMessageRequest<'a> {
@@ -396,18 +522,26 @@ impl<'a> CreateEstimateMessageRequest<'a> {
 }
 pub struct ListExpenseCategoriesRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub is_active: bool,
-    pub updated_since: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub is_active: Option<bool>,
+    pub updated_since: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListExpenseCategoriesRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ExpenseCategories> {
         let mut r = self.client.client.get("/expense_categories");
-        r = r.push_query("is_active", &self.is_active.to_string());
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref is_active) = self.is_active {
+            r = r.push_query("is_active", &is_active.to_string());
+        }
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -417,6 +551,22 @@ impl<'a> ListExpenseCategoriesRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn is_active(mut self, is_active: bool) -> Self {
+        self.is_active = Some(is_active);
+        self
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateExpenseCategoryRequest<'a> {
@@ -472,28 +622,46 @@ impl<'a> RetrieveExpenseCategoryRequest<'a> {
 }
 pub struct ListExpensesRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub user_id: i64,
-    pub client_id: i64,
-    pub project_id: i64,
-    pub is_billed: bool,
-    pub updated_since: String,
-    pub from: String,
-    pub to: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub user_id: Option<i64>,
+    pub client_id: Option<i64>,
+    pub project_id: Option<i64>,
+    pub is_billed: Option<bool>,
+    pub updated_since: Option<String>,
+    pub from: Option<String>,
+    pub to: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListExpensesRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Expenses> {
         let mut r = self.client.client.get("/expenses");
-        r = r.push_query("user_id", &self.user_id.to_string());
-        r = r.push_query("client_id", &self.client_id.to_string());
-        r = r.push_query("project_id", &self.project_id.to_string());
-        r = r.push_query("is_billed", &self.is_billed.to_string());
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("from", &self.from.to_string());
-        r = r.push_query("to", &self.to.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref user_id) = self.user_id {
+            r = r.push_query("user_id", &user_id.to_string());
+        }
+        if let Some(ref client_id) = self.client_id {
+            r = r.push_query("client_id", &client_id.to_string());
+        }
+        if let Some(ref project_id) = self.project_id {
+            r = r.push_query("project_id", &project_id.to_string());
+        }
+        if let Some(ref is_billed) = self.is_billed {
+            r = r.push_query("is_billed", &is_billed.to_string());
+        }
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref from) = self.from {
+            r = r.push_query("from", &from.to_string());
+        }
+        if let Some(ref to) = self.to {
+            r = r.push_query("to", &to.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -503,6 +671,42 @@ impl<'a> ListExpensesRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn user_id(mut self, user_id: i64) -> Self {
+        self.user_id = Some(user_id);
+        self
+    }
+    pub fn client_id(mut self, client_id: i64) -> Self {
+        self.client_id = Some(client_id);
+        self
+    }
+    pub fn project_id(mut self, project_id: i64) -> Self {
+        self.project_id = Some(project_id);
+        self
+    }
+    pub fn is_billed(mut self, is_billed: bool) -> Self {
+        self.is_billed = Some(is_billed);
+        self
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn from(mut self, from: String) -> Self {
+        self.from = Some(from);
+        self
+    }
+    pub fn to(mut self, to: String) -> Self {
+        self.to = Some(to);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateExpenseRequest<'a> {
@@ -563,16 +767,22 @@ impl<'a> RetrieveExpenseRequest<'a> {
 }
 pub struct ListInvoiceItemCategoriesRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub updated_since: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub updated_since: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListInvoiceItemCategoriesRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::InvoiceItemCategories> {
         let mut r = self.client.client.get("/invoice_item_categories");
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -582,6 +792,18 @@ impl<'a> ListInvoiceItemCategoriesRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateInvoiceItemCategoryRequest<'a> {
@@ -631,26 +853,42 @@ impl<'a> RetrieveInvoiceItemCategoryRequest<'a> {
 }
 pub struct ListInvoicesRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub client_id: i64,
-    pub project_id: i64,
-    pub updated_since: String,
-    pub from: String,
-    pub to: String,
-    pub state: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub client_id: Option<i64>,
+    pub project_id: Option<i64>,
+    pub updated_since: Option<String>,
+    pub from: Option<String>,
+    pub to: Option<String>,
+    pub state: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListInvoicesRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Invoices> {
         let mut r = self.client.client.get("/invoices");
-        r = r.push_query("client_id", &self.client_id.to_string());
-        r = r.push_query("project_id", &self.project_id.to_string());
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("from", &self.from.to_string());
-        r = r.push_query("to", &self.to.to_string());
-        r = r.push_query("state", &self.state.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref client_id) = self.client_id {
+            r = r.push_query("client_id", &client_id.to_string());
+        }
+        if let Some(ref project_id) = self.project_id {
+            r = r.push_query("project_id", &project_id.to_string());
+        }
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref from) = self.from {
+            r = r.push_query("from", &from.to_string());
+        }
+        if let Some(ref to) = self.to {
+            r = r.push_query("to", &to.to_string());
+        }
+        if let Some(ref state) = self.state {
+            r = r.push_query("state", &state.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -660,6 +898,38 @@ impl<'a> ListInvoicesRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn client_id(mut self, client_id: i64) -> Self {
+        self.client_id = Some(client_id);
+        self
+    }
+    pub fn project_id(mut self, project_id: i64) -> Self {
+        self.project_id = Some(project_id);
+        self
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn from(mut self, from: String) -> Self {
+        self.from = Some(from);
+        self
+    }
+    pub fn to(mut self, to: String) -> Self {
+        self.to = Some(to);
+        self
+    }
+    pub fn state(mut self, state: String) -> Self {
+        self.state = Some(state);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateInvoiceRequest<'a> {
@@ -741,9 +1011,9 @@ impl<'a> RetrieveInvoiceRequest<'a> {
 pub struct ListMessagesForInvoiceRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub invoice_id: String,
-    pub updated_since: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub updated_since: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListMessagesForInvoiceRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::InvoiceMessages> {
@@ -753,9 +1023,15 @@ impl<'a> ListMessagesForInvoiceRequest<'a> {
             .get(
                 &format!("/invoices/{invoice_id}/messages", invoice_id = self.invoice_id),
             );
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -765,6 +1041,18 @@ impl<'a> ListMessagesForInvoiceRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateInvoiceMessageRequest<'a> {
@@ -815,9 +1103,9 @@ impl<'a> CreateInvoiceMessageRequest<'a> {
 pub struct ListPaymentsForInvoiceRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub invoice_id: String,
-    pub updated_since: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub updated_since: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListPaymentsForInvoiceRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::InvoicePayments> {
@@ -827,9 +1115,15 @@ impl<'a> ListPaymentsForInvoiceRequest<'a> {
             .get(
                 &format!("/invoices/{invoice_id}/payments", invoice_id = self.invoice_id),
             );
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -839,6 +1133,18 @@ impl<'a> ListPaymentsForInvoiceRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateInvoicePaymentRequest<'a> {
@@ -874,20 +1180,30 @@ impl<'a> CreateInvoicePaymentRequest<'a> {
 }
 pub struct ListProjectsRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub is_active: bool,
-    pub client_id: i64,
-    pub updated_since: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub is_active: Option<bool>,
+    pub client_id: Option<i64>,
+    pub updated_since: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListProjectsRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Projects> {
         let mut r = self.client.client.get("/projects");
-        r = r.push_query("is_active", &self.is_active.to_string());
-        r = r.push_query("client_id", &self.client_id.to_string());
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref is_active) = self.is_active {
+            r = r.push_query("is_active", &is_active.to_string());
+        }
+        if let Some(ref client_id) = self.client_id {
+            r = r.push_query("client_id", &client_id.to_string());
+        }
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -897,6 +1213,26 @@ impl<'a> ListProjectsRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn is_active(mut self, is_active: bool) -> Self {
+        self.is_active = Some(is_active);
+        self
+    }
+    pub fn client_id(mut self, client_id: i64) -> Self {
+        self.client_id = Some(client_id);
+        self
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateProjectRequest<'a> {
@@ -995,10 +1331,10 @@ impl<'a> RetrieveProjectRequest<'a> {
 pub struct ListTaskAssignmentsForSpecificProjectRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub project_id: String,
-    pub is_active: bool,
-    pub updated_since: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub is_active: Option<bool>,
+    pub updated_since: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListTaskAssignmentsForSpecificProjectRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TaskAssignments> {
@@ -1011,10 +1347,18 @@ impl<'a> ListTaskAssignmentsForSpecificProjectRequest<'a> {
                     .project_id
                 ),
             );
-        r = r.push_query("is_active", &self.is_active.to_string());
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref is_active) = self.is_active {
+            r = r.push_query("is_active", &is_active.to_string());
+        }
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1024,6 +1368,22 @@ impl<'a> ListTaskAssignmentsForSpecificProjectRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn is_active(mut self, is_active: bool) -> Self {
+        self.is_active = Some(is_active);
+        self
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateTaskAssignmentRequest<'a> {
@@ -1093,11 +1453,11 @@ impl<'a> RetrieveTaskAssignmentRequest<'a> {
 pub struct ListUserAssignmentsForSpecificProjectRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub project_id: String,
-    pub user_id: i64,
-    pub is_active: bool,
-    pub updated_since: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub user_id: Option<i64>,
+    pub is_active: Option<bool>,
+    pub updated_since: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListUserAssignmentsForSpecificProjectRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::UserAssignments> {
@@ -1110,11 +1470,21 @@ impl<'a> ListUserAssignmentsForSpecificProjectRequest<'a> {
                     .project_id
                 ),
             );
-        r = r.push_query("user_id", &self.user_id.to_string());
-        r = r.push_query("is_active", &self.is_active.to_string());
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref user_id) = self.user_id {
+            r = r.push_query("user_id", &user_id.to_string());
+        }
+        if let Some(ref is_active) = self.is_active {
+            r = r.push_query("is_active", &is_active.to_string());
+        }
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1124,6 +1494,26 @@ impl<'a> ListUserAssignmentsForSpecificProjectRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn user_id(mut self, user_id: i64) -> Self {
+        self.user_id = Some(user_id);
+        self
+    }
+    pub fn is_active(mut self, is_active: bool) -> Self {
+        self.is_active = Some(is_active);
+        self
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateUserAssignmentRequest<'a> {
@@ -1196,16 +1586,20 @@ pub struct ExpenseCategoriesReportRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub from: String,
     pub to: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ExpenseCategoriesReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ExpenseReportsResults> {
         let mut r = self.client.client.get("/reports/expenses/categories");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1215,22 +1609,34 @@ impl<'a> ExpenseCategoriesReportRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct ClientsExpensesReportRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub from: String,
     pub to: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ClientsExpensesReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ExpenseReportsResults> {
         let mut r = self.client.client.get("/reports/expenses/clients");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1240,22 +1646,34 @@ impl<'a> ClientsExpensesReportRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct ProjectsExpensesReportRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub from: String,
     pub to: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ProjectsExpensesReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ExpenseReportsResults> {
         let mut r = self.client.client.get("/reports/expenses/projects");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1265,22 +1683,34 @@ impl<'a> ProjectsExpensesReportRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct TeamExpensesReportRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub from: String,
     pub to: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> TeamExpensesReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ExpenseReportsResults> {
         let mut r = self.client.client.get("/reports/expenses/team");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1291,19 +1721,33 @@ impl<'a> TeamExpensesReportRequest<'a> {
             }
         }
     }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
+    }
 }
 pub struct ProjectBudgetReportRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub page: i64,
-    pub per_page: i64,
-    pub is_active: bool,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
+    pub is_active: Option<bool>,
 }
 impl<'a> ProjectBudgetReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ProjectBudgetReportResults> {
         let mut r = self.client.client.get("/reports/project_budget");
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
-        r = r.push_query("is_active", &self.is_active.to_string());
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
+        if let Some(ref is_active) = self.is_active {
+            r = r.push_query("is_active", &is_active.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1313,22 +1757,38 @@ impl<'a> ProjectBudgetReportRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
+    }
+    pub fn is_active(mut self, is_active: bool) -> Self {
+        self.is_active = Some(is_active);
+        self
     }
 }
 pub struct ClientsTimeReportRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub from: String,
     pub to: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ClientsTimeReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TimeReportsResults> {
         let mut r = self.client.client.get("/reports/time/clients");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1338,22 +1798,34 @@ impl<'a> ClientsTimeReportRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct ProjectsTimeReportRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub from: String,
     pub to: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ProjectsTimeReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TimeReportsResults> {
         let mut r = self.client.client.get("/reports/time/projects");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1363,22 +1835,34 @@ impl<'a> ProjectsTimeReportRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct TasksReportRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub from: String,
     pub to: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> TasksReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TimeReportsResults> {
         let mut r = self.client.client.get("/reports/time/tasks");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1388,22 +1872,34 @@ impl<'a> TasksReportRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct TeamTimeReportRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub from: String,
     pub to: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> TeamTimeReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TimeReportsResults> {
         let mut r = self.client.client.get("/reports/time/team");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1413,22 +1909,34 @@ impl<'a> TeamTimeReportRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct UninvoicedReportRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub from: String,
     pub to: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> UninvoicedReportRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::UninvoicedReportResults> {
         let mut r = self.client.client.get("/reports/uninvoiced");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1439,17 +1947,29 @@ impl<'a> UninvoicedReportRequest<'a> {
             }
         }
     }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
+    }
 }
 pub struct ListRolesRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub page: i64,
-    pub per_page: i64,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListRolesRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Roles> {
         let mut r = self.client.client.get("/roles");
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1459,6 +1979,14 @@ impl<'a> ListRolesRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateRoleRequest<'a> {
@@ -1505,18 +2033,26 @@ impl<'a> RetrieveRoleRequest<'a> {
 }
 pub struct ListTaskAssignmentsRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub is_active: bool,
-    pub updated_since: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub is_active: Option<bool>,
+    pub updated_since: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListTaskAssignmentsRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TaskAssignments> {
         let mut r = self.client.client.get("/task_assignments");
-        r = r.push_query("is_active", &self.is_active.to_string());
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref is_active) = self.is_active {
+            r = r.push_query("is_active", &is_active.to_string());
+        }
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1527,21 +2063,45 @@ impl<'a> ListTaskAssignmentsRequest<'a> {
             }
         }
     }
+    pub fn is_active(mut self, is_active: bool) -> Self {
+        self.is_active = Some(is_active);
+        self
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
+    }
 }
 pub struct ListTasksRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub is_active: bool,
-    pub updated_since: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub is_active: Option<bool>,
+    pub updated_since: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListTasksRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Tasks> {
         let mut r = self.client.client.get("/tasks");
-        r = r.push_query("is_active", &self.is_active.to_string());
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref is_active) = self.is_active {
+            r = r.push_query("is_active", &is_active.to_string());
+        }
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1551,6 +2111,22 @@ impl<'a> ListTasksRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn is_active(mut self, is_active: bool) -> Self {
+        self.is_active = Some(is_active);
+        self
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateTaskRequest<'a> {
@@ -1603,38 +2179,59 @@ impl<'a> RetrieveTaskRequest<'a> {
 }
 pub struct ListTimeEntriesRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub user_id: i64,
-    pub client_id: i64,
-    pub project_id: i64,
-    pub task_id: i64,
-    pub external_reference_id: String,
-    pub is_billed: bool,
-    pub is_running: bool,
-    pub updated_since: String,
-    pub from: String,
-    pub to: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub user_id: Option<i64>,
+    pub client_id: Option<i64>,
+    pub project_id: Option<i64>,
+    pub task_id: Option<i64>,
+    pub external_reference_id: Option<String>,
+    pub is_billed: Option<bool>,
+    pub is_running: Option<bool>,
+    pub updated_since: Option<String>,
+    pub from: Option<String>,
+    pub to: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListTimeEntriesRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TimeEntries> {
         let mut r = self.client.client.get("/time_entries");
-        r = r.push_query("user_id", &self.user_id.to_string());
-        r = r.push_query("client_id", &self.client_id.to_string());
-        r = r.push_query("project_id", &self.project_id.to_string());
-        r = r.push_query("task_id", &self.task_id.to_string());
-        r = r
-            .push_query(
-                "external_reference_id",
-                &self.external_reference_id.to_string(),
-            );
-        r = r.push_query("is_billed", &self.is_billed.to_string());
-        r = r.push_query("is_running", &self.is_running.to_string());
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("from", &self.from.to_string());
-        r = r.push_query("to", &self.to.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref user_id) = self.user_id {
+            r = r.push_query("user_id", &user_id.to_string());
+        }
+        if let Some(ref client_id) = self.client_id {
+            r = r.push_query("client_id", &client_id.to_string());
+        }
+        if let Some(ref project_id) = self.project_id {
+            r = r.push_query("project_id", &project_id.to_string());
+        }
+        if let Some(ref task_id) = self.task_id {
+            r = r.push_query("task_id", &task_id.to_string());
+        }
+        if let Some(ref external_reference_id) = self.external_reference_id {
+            r = r
+                .push_query("external_reference_id", &external_reference_id.to_string());
+        }
+        if let Some(ref is_billed) = self.is_billed {
+            r = r.push_query("is_billed", &is_billed.to_string());
+        }
+        if let Some(ref is_running) = self.is_running {
+            r = r.push_query("is_running", &is_running.to_string());
+        }
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref from) = self.from {
+            r = r.push_query("from", &from.to_string());
+        }
+        if let Some(ref to) = self.to {
+            r = r.push_query("to", &to.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1644,6 +2241,54 @@ impl<'a> ListTimeEntriesRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn user_id(mut self, user_id: i64) -> Self {
+        self.user_id = Some(user_id);
+        self
+    }
+    pub fn client_id(mut self, client_id: i64) -> Self {
+        self.client_id = Some(client_id);
+        self
+    }
+    pub fn project_id(mut self, project_id: i64) -> Self {
+        self.project_id = Some(project_id);
+        self
+    }
+    pub fn task_id(mut self, task_id: i64) -> Self {
+        self.task_id = Some(task_id);
+        self
+    }
+    pub fn external_reference_id(mut self, external_reference_id: String) -> Self {
+        self.external_reference_id = Some(external_reference_id);
+        self
+    }
+    pub fn is_billed(mut self, is_billed: bool) -> Self {
+        self.is_billed = Some(is_billed);
+        self
+    }
+    pub fn is_running(mut self, is_running: bool) -> Self {
+        self.is_running = Some(is_running);
+        self
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn from(mut self, from: String) -> Self {
+        self.from = Some(from);
+        self
+    }
+    pub fn to(mut self, to: String) -> Self {
+        self.to = Some(to);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateTimeEntryRequest<'a> {
@@ -1714,20 +2359,30 @@ impl<'a> RetrieveTimeEntryRequest<'a> {
 }
 pub struct ListUserAssignmentsRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub user_id: i64,
-    pub is_active: bool,
-    pub updated_since: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub user_id: Option<i64>,
+    pub is_active: Option<bool>,
+    pub updated_since: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListUserAssignmentsRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::UserAssignments> {
         let mut r = self.client.client.get("/user_assignments");
-        r = r.push_query("user_id", &self.user_id.to_string());
-        r = r.push_query("is_active", &self.is_active.to_string());
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref user_id) = self.user_id {
+            r = r.push_query("user_id", &user_id.to_string());
+        }
+        if let Some(ref is_active) = self.is_active {
+            r = r.push_query("is_active", &is_active.to_string());
+        }
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1738,21 +2393,49 @@ impl<'a> ListUserAssignmentsRequest<'a> {
             }
         }
     }
+    pub fn user_id(mut self, user_id: i64) -> Self {
+        self.user_id = Some(user_id);
+        self
+    }
+    pub fn is_active(mut self, is_active: bool) -> Self {
+        self.is_active = Some(is_active);
+        self
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
+    }
 }
 pub struct ListUsersRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub is_active: bool,
-    pub updated_since: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub is_active: Option<bool>,
+    pub updated_since: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListUsersRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Users> {
         let mut r = self.client.client.get("/users");
-        r = r.push_query("is_active", &self.is_active.to_string());
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref is_active) = self.is_active {
+            r = r.push_query("is_active", &is_active.to_string());
+        }
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1762,6 +2445,22 @@ impl<'a> ListUsersRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn is_active(mut self, is_active: bool) -> Self {
+        self.is_active = Some(is_active);
+        self
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateUserRequest<'a> {
@@ -1828,14 +2527,18 @@ impl<'a> RetrieveTheCurrentlyAuthenticatedUserRequest<'a> {
 }
 pub struct ListActiveProjectAssignmentsForTheCurrentlyAuthenticatedUserRequest<'a> {
     pub(crate) client: &'a HarvestClient,
-    pub page: i64,
-    pub per_page: i64,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListActiveProjectAssignmentsForTheCurrentlyAuthenticatedUserRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ProjectAssignments> {
         let mut r = self.client.client.get("/users/me/project_assignments");
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1845,6 +2548,14 @@ impl<'a> ListActiveProjectAssignmentsForTheCurrentlyAuthenticatedUserRequest<'a>
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct RetrieveUserRequest<'a> {
@@ -1871,8 +2582,8 @@ impl<'a> RetrieveUserRequest<'a> {
 pub struct ListBillableRatesForSpecificUserRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub user_id: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListBillableRatesForSpecificUserRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::BillableRates> {
@@ -1880,8 +2591,12 @@ impl<'a> ListBillableRatesForSpecificUserRequest<'a> {
             .client
             .client
             .get(&format!("/users/{user_id}/billable_rates", user_id = self.user_id));
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1891,6 +2606,14 @@ impl<'a> ListBillableRatesForSpecificUserRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateBillableRateRequest<'a> {
@@ -1948,8 +2671,8 @@ impl<'a> RetrieveBillableRateRequest<'a> {
 pub struct ListCostRatesForSpecificUserRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub user_id: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListCostRatesForSpecificUserRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::CostRates> {
@@ -1957,8 +2680,12 @@ impl<'a> ListCostRatesForSpecificUserRequest<'a> {
             .client
             .client
             .get(&format!("/users/{user_id}/cost_rates", user_id = self.user_id));
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1968,6 +2695,14 @@ impl<'a> ListCostRatesForSpecificUserRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }
 pub struct CreateCostRateRequest<'a> {
@@ -2025,9 +2760,9 @@ impl<'a> RetrieveCostRateRequest<'a> {
 pub struct ListActiveProjectAssignmentsRequest<'a> {
     pub(crate) client: &'a HarvestClient,
     pub user_id: String,
-    pub updated_since: String,
-    pub page: i64,
-    pub per_page: i64,
+    pub updated_since: Option<String>,
+    pub page: Option<i64>,
+    pub per_page: Option<i64>,
 }
 impl<'a> ListActiveProjectAssignmentsRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ProjectAssignments> {
@@ -2037,9 +2772,15 @@ impl<'a> ListActiveProjectAssignmentsRequest<'a> {
             .get(
                 &format!("/users/{user_id}/project_assignments", user_id = self.user_id),
             );
-        r = r.push_query("updated_since", &self.updated_since.to_string());
-        r = r.push_query("page", &self.page.to_string());
-        r = r.push_query("per_page", &self.per_page.to_string());
+        if let Some(ref updated_since) = self.updated_since {
+            r = r.push_query("updated_since", &updated_since.to_string());
+        }
+        if let Some(ref page) = self.page {
+            r = r.push_query("page", &page.to_string());
+        }
+        if let Some(ref per_page) = self.per_page {
+            r = r.push_query("per_page", &per_page.to_string());
+        }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -2049,5 +2790,17 @@ impl<'a> ListActiveProjectAssignmentsRequest<'a> {
                 Err(anyhow::anyhow!("{:?}", text))
             }
         }
+    }
+    pub fn updated_since(mut self, updated_since: String) -> Self {
+        self.updated_since = Some(updated_since);
+        self
+    }
+    pub fn page(mut self, page: i64) -> Self {
+        self.page = Some(page);
+        self
+    }
+    pub fn per_page(mut self, per_page: i64) -> Self {
+        self.per_page = Some(per_page);
+        self
     }
 }

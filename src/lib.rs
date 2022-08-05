@@ -49,19 +49,13 @@ Returns a list of your clients. The clients are returned sorted by creation date
 The response contains an object with a clients property that contains an array of up to per_page clients. Each entry in the array is a separate client object. If no more clients are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your clients.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/clients-api/clients/clients/#list-all-clients>.*/
-    pub fn list_clients(
-        &self,
-        is_active: bool,
-        updated_since: String,
-        page: i64,
-        per_page: i64,
-    ) -> request_model::ListClientsRequest {
+    pub fn list_clients(&self) -> request_model::ListClientsRequest {
         request_model::ListClientsRequest {
             client: &self,
-            is_active,
-            updated_since,
-            page,
-            per_page,
+            is_active: None,
+            updated_since: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create a client
@@ -116,19 +110,13 @@ Returns a list of your contacts. The contacts are returned sorted by creation da
 The response contains an object with a contacts property that contains an array of up to per_page contacts. Each entry in the array is a separate contact object. If no more contacts are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your contacts.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/clients-api/clients/contacts/#list-all-contacts>.*/
-    pub fn list_contacts(
-        &self,
-        client_id: i64,
-        updated_since: String,
-        page: i64,
-        per_page: i64,
-    ) -> request_model::ListContactsRequest {
+    pub fn list_contacts(&self) -> request_model::ListContactsRequest {
         request_model::ListContactsRequest {
             client: &self,
-            client_id,
-            updated_since,
-            page,
-            per_page,
+            client_id: None,
+            updated_since: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create a contact
@@ -182,15 +170,12 @@ The response contains an object with a estimate_item_categories property that co
 See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates/estimate-item-categories/#list-all-estimate-item-categories>.*/
     pub fn list_estimate_item_categories(
         &self,
-        updated_since: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ListEstimateItemCategoriesRequest {
         request_model::ListEstimateItemCategoriesRequest {
             client: &self,
-            updated_since,
-            page,
-            per_page,
+            updated_since: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create an estimate item category
@@ -228,25 +213,16 @@ Returns a list of your estimates. The estimates are returned sorted by issue dat
 The response contains an object with a estimates property that contains an array of up to per_page estimates. Each entry in the array is a separate estimate object. If no more estimates are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your estimates.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates/estimates/#list-all-estimates>.*/
-    pub fn list_estimates(
-        &self,
-        client_id: i64,
-        updated_since: String,
-        from: String,
-        to: String,
-        state: String,
-        page: i64,
-        per_page: i64,
-    ) -> request_model::ListEstimatesRequest {
+    pub fn list_estimates(&self) -> request_model::ListEstimatesRequest {
         request_model::ListEstimatesRequest {
             client: &self,
-            client_id,
-            updated_since,
-            from,
-            to,
-            state,
-            page,
-            per_page,
+            client_id: None,
+            updated_since: None,
+            from: None,
+            to: None,
+            state: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create an estimate
@@ -307,16 +283,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates
     pub fn list_messages_for_estimate(
         &self,
         estimate_id: String,
-        updated_since: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ListMessagesForEstimateRequest {
         request_model::ListMessagesForEstimateRequest {
             client: &self,
             estimate_id,
-            updated_since,
-            page,
-            per_page,
+            updated_since: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create an estimate message or change estimate status
@@ -352,17 +325,13 @@ The response contains an object with a expense_categories property that contains
 See endpoint docs at <https://help.getharvest.com/api-v2/expenses-api/expenses/expense-categories/#list-all-expense-categories>.*/
     pub fn list_expense_categories(
         &self,
-        is_active: bool,
-        updated_since: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ListExpenseCategoriesRequest {
         request_model::ListExpenseCategoriesRequest {
             client: &self,
-            is_active,
-            updated_since,
-            page,
-            per_page,
+            is_active: None,
+            updated_since: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create an expense category
@@ -406,29 +375,18 @@ Returns a list of your expenses. If accessing this endpoint as an Administrator,
 The response contains an object with a expenses property that contains an array of up to per_page expenses. Each entry in the array is a separate expense object. If no more expenses are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your expenses.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/expenses-api/expenses/expenses/#list-all-expenses>.*/
-    pub fn list_expenses(
-        &self,
-        user_id: i64,
-        client_id: i64,
-        project_id: i64,
-        is_billed: bool,
-        updated_since: String,
-        from: String,
-        to: String,
-        page: i64,
-        per_page: i64,
-    ) -> request_model::ListExpensesRequest {
+    pub fn list_expenses(&self) -> request_model::ListExpensesRequest {
         request_model::ListExpensesRequest {
             client: &self,
-            user_id,
-            client_id,
-            project_id,
-            is_billed,
-            updated_since,
-            from,
-            to,
-            page,
-            per_page,
+            user_id: None,
+            client_id: None,
+            project_id: None,
+            is_billed: None,
+            updated_since: None,
+            from: None,
+            to: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create an expense
@@ -484,15 +442,12 @@ The response contains an object with a invoice_item_categories property that con
 See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoice-item-categories/#list-all-invoice-item-categories>.*/
     pub fn list_invoice_item_categories(
         &self,
-        updated_since: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ListInvoiceItemCategoriesRequest {
         request_model::ListInvoiceItemCategoriesRequest {
             client: &self,
-            updated_since,
-            page,
-            per_page,
+            updated_since: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create an invoice item category
@@ -530,27 +485,17 @@ Returns a list of your invoices. The invoices are returned sorted by issue date,
 The response contains an object with a invoices property that contains an array of up to per_page invoices. Each entry in the array is a separate invoice object. If no more invoices are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your invoices.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoices/#list-all-invoices>.*/
-    pub fn list_invoices(
-        &self,
-        client_id: i64,
-        project_id: i64,
-        updated_since: String,
-        from: String,
-        to: String,
-        state: String,
-        page: i64,
-        per_page: i64,
-    ) -> request_model::ListInvoicesRequest {
+    pub fn list_invoices(&self) -> request_model::ListInvoicesRequest {
         request_model::ListInvoicesRequest {
             client: &self,
-            client_id,
-            project_id,
-            updated_since,
-            from,
-            to,
-            state,
-            page,
-            per_page,
+            client_id: None,
+            project_id: None,
+            updated_since: None,
+            from: None,
+            to: None,
+            state: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create an invoice
@@ -620,16 +565,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/i
     pub fn list_messages_for_invoice(
         &self,
         invoice_id: String,
-        updated_since: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ListMessagesForInvoiceRequest {
         request_model::ListMessagesForInvoiceRequest {
             client: &self,
             invoice_id,
-            updated_since,
-            page,
-            per_page,
+            updated_since: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create an invoice message or change invoice status
@@ -672,16 +614,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/i
     pub fn list_payments_for_invoice(
         &self,
         invoice_id: String,
-        updated_since: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ListPaymentsForInvoiceRequest {
         request_model::ListPaymentsForInvoiceRequest {
             client: &self,
             invoice_id,
-            updated_since,
-            page,
-            per_page,
+            updated_since: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create an invoice payment
@@ -713,21 +652,14 @@ Returns a list of your projects. The projects are returned sorted by creation da
 The response contains an object with a projects property that contains an array of up to per_page projects. Each entry in the array is a separate project object. If no more projects are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your projects.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/projects/#list-all-projects>.*/
-    pub fn list_projects(
-        &self,
-        is_active: bool,
-        client_id: i64,
-        updated_since: String,
-        page: i64,
-        per_page: i64,
-    ) -> request_model::ListProjectsRequest {
+    pub fn list_projects(&self) -> request_model::ListProjectsRequest {
         request_model::ListProjectsRequest {
             client: &self,
-            is_active,
-            client_id,
-            updated_since,
-            page,
-            per_page,
+            is_active: None,
+            client_id: None,
+            updated_since: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create a project
@@ -806,18 +738,14 @@ See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/t
     pub fn list_task_assignments_for_specific_project(
         &self,
         project_id: String,
-        is_active: bool,
-        updated_since: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ListTaskAssignmentsForSpecificProjectRequest {
         request_model::ListTaskAssignmentsForSpecificProjectRequest {
             client: &self,
             project_id,
-            is_active,
-            updated_since,
-            page,
-            per_page,
+            is_active: None,
+            updated_since: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create a task assignment
@@ -870,20 +798,15 @@ See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/u
     pub fn list_user_assignments_for_specific_project(
         &self,
         project_id: String,
-        user_id: i64,
-        is_active: bool,
-        updated_since: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ListUserAssignmentsForSpecificProjectRequest {
         request_model::ListUserAssignmentsForSpecificProjectRequest {
             client: &self,
             project_id,
-            user_id,
-            is_active,
-            updated_since,
-            page,
-            per_page,
+            user_id: None,
+            is_active: None,
+            updated_since: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create a user assignment
@@ -935,15 +858,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/exp
         &self,
         from: String,
         to: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ExpenseCategoriesReportRequest {
         request_model::ExpenseCategoriesReportRequest {
             client: &self,
             from,
             to,
-            page,
-            per_page,
+            page: None,
+            per_page: None,
         }
     }
     /**Clients Report
@@ -953,15 +874,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/exp
         &self,
         from: String,
         to: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ClientsExpensesReportRequest {
         request_model::ClientsExpensesReportRequest {
             client: &self,
             from,
             to,
-            page,
-            per_page,
+            page: None,
+            per_page: None,
         }
     }
     /**Projects Report
@@ -971,15 +890,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/exp
         &self,
         from: String,
         to: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ProjectsExpensesReportRequest {
         request_model::ProjectsExpensesReportRequest {
             client: &self,
             from,
             to,
-            page,
-            per_page,
+            page: None,
+            per_page: None,
         }
     }
     /**Team Report
@@ -989,15 +906,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/exp
         &self,
         from: String,
         to: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::TeamExpensesReportRequest {
         request_model::TeamExpensesReportRequest {
             client: &self,
             from,
             to,
-            page,
-            per_page,
+            page: None,
+            per_page: None,
         }
     }
     /**Project Budget Report
@@ -1005,17 +920,12 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/exp
 The response contains an object with a results property that contains an array of up to per_page results. Each entry in the array is a separate result object. If no more results are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your results.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/project-budget-report/#project-budget-report>.*/
-    pub fn project_budget_report(
-        &self,
-        page: i64,
-        per_page: i64,
-        is_active: bool,
-    ) -> request_model::ProjectBudgetReportRequest {
+    pub fn project_budget_report(&self) -> request_model::ProjectBudgetReportRequest {
         request_model::ProjectBudgetReportRequest {
             client: &self,
-            page,
-            per_page,
-            is_active,
+            page: None,
+            per_page: None,
+            is_active: None,
         }
     }
     /**Clients Report
@@ -1025,15 +935,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/tim
         &self,
         from: String,
         to: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ClientsTimeReportRequest {
         request_model::ClientsTimeReportRequest {
             client: &self,
             from,
             to,
-            page,
-            per_page,
+            page: None,
+            per_page: None,
         }
     }
     /**Projects Report
@@ -1043,15 +951,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/tim
         &self,
         from: String,
         to: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ProjectsTimeReportRequest {
         request_model::ProjectsTimeReportRequest {
             client: &self,
             from,
             to,
-            page,
-            per_page,
+            page: None,
+            per_page: None,
         }
     }
     /**Tasks Report
@@ -1061,15 +967,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/tim
         &self,
         from: String,
         to: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::TasksReportRequest {
         request_model::TasksReportRequest {
             client: &self,
             from,
             to,
-            page,
-            per_page,
+            page: None,
+            per_page: None,
         }
     }
     /**Team Report
@@ -1079,15 +983,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/tim
         &self,
         from: String,
         to: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::TeamTimeReportRequest {
         request_model::TeamTimeReportRequest {
             client: &self,
             from,
             to,
-            page,
-            per_page,
+            page: None,
+            per_page: None,
         }
     }
     /**Uninvoiced Report
@@ -1101,15 +1003,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/uni
         &self,
         from: String,
         to: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::UninvoicedReportRequest {
         request_model::UninvoicedReportRequest {
             client: &self,
             from,
             to,
-            page,
-            per_page,
+            page: None,
+            per_page: None,
         }
     }
     /**List all roles
@@ -1119,15 +1019,11 @@ Returns a list of roles in the account. The roles are returned sorted by creatio
 The response contains an object with a roles property that contains an array of up to per_page roles. Each entry in the array is a separate role object. If no more roles are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your roles.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/roles-api/roles/roles/#list-all-roles>.*/
-    pub fn list_roles(
-        &self,
-        page: i64,
-        per_page: i64,
-    ) -> request_model::ListRolesRequest {
+    pub fn list_roles(&self) -> request_model::ListRolesRequest {
         request_model::ListRolesRequest {
             client: &self,
-            page,
-            per_page,
+            page: None,
+            per_page: None,
         }
     }
     /**Create a role
@@ -1164,19 +1060,13 @@ Returns a list of your task assignments. The task assignments are returned sorte
 The response contains an object with a task_assignments property that contains an array of up to per_page task assignments. Each entry in the array is a separate task assignment object. If no more task assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your task assignments.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/task-assignments/#list-all-task-assignments>.*/
-    pub fn list_task_assignments(
-        &self,
-        is_active: bool,
-        updated_since: String,
-        page: i64,
-        per_page: i64,
-    ) -> request_model::ListTaskAssignmentsRequest {
+    pub fn list_task_assignments(&self) -> request_model::ListTaskAssignmentsRequest {
         request_model::ListTaskAssignmentsRequest {
             client: &self,
-            is_active,
-            updated_since,
-            page,
-            per_page,
+            is_active: None,
+            updated_since: None,
+            page: None,
+            per_page: None,
         }
     }
     /**List all tasks
@@ -1186,19 +1076,13 @@ Returns a list of your tasks. The tasks are returned sorted by creation date, wi
 The response contains an object with a tasks property that contains an array of up to per_page tasks. Each entry in the array is a separate task object. If no more tasks are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your tasks.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/tasks-api/tasks/tasks/#list-all-tasks>.*/
-    pub fn list_tasks(
-        &self,
-        is_active: bool,
-        updated_since: String,
-        page: i64,
-        per_page: i64,
-    ) -> request_model::ListTasksRequest {
+    pub fn list_tasks(&self) -> request_model::ListTasksRequest {
         request_model::ListTasksRequest {
             client: &self,
-            is_active,
-            updated_since,
-            page,
-            per_page,
+            is_active: None,
+            updated_since: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create a task
@@ -1241,35 +1125,21 @@ Returns a list of time entries. The time entries are returned sorted by spent_da
 The response contains an object with a time_entries property that contains an array of up to per_page time entries. Each entry in the array is a separate time entry object. If no more time entries are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your time entries.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/timesheets-api/timesheets/time-entries/#list-all-time-entries>.*/
-    pub fn list_time_entries(
-        &self,
-        user_id: i64,
-        client_id: i64,
-        project_id: i64,
-        task_id: i64,
-        external_reference_id: String,
-        is_billed: bool,
-        is_running: bool,
-        updated_since: String,
-        from: String,
-        to: String,
-        page: i64,
-        per_page: i64,
-    ) -> request_model::ListTimeEntriesRequest {
+    pub fn list_time_entries(&self) -> request_model::ListTimeEntriesRequest {
         request_model::ListTimeEntriesRequest {
             client: &self,
-            user_id,
-            client_id,
-            project_id,
-            task_id,
-            external_reference_id,
-            is_billed,
-            is_running,
-            updated_since,
-            from,
-            to,
-            page,
-            per_page,
+            user_id: None,
+            client_id: None,
+            project_id: None,
+            task_id: None,
+            external_reference_id: None,
+            is_billed: None,
+            is_running: None,
+            updated_since: None,
+            from: None,
+            to: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create a time entry
@@ -1324,21 +1194,14 @@ Returns a list of your projects user assignments, active and archived. The user 
 The response contains an object with a user_assignments property that contains an array of up to per_page user assignments. Each entry in the array is a separate user assignment object. If no more user assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your user assignments.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/user-assignments/#list-all-user-assignments>.*/
-    pub fn list_user_assignments(
-        &self,
-        user_id: i64,
-        is_active: bool,
-        updated_since: String,
-        page: i64,
-        per_page: i64,
-    ) -> request_model::ListUserAssignmentsRequest {
+    pub fn list_user_assignments(&self) -> request_model::ListUserAssignmentsRequest {
         request_model::ListUserAssignmentsRequest {
             client: &self,
-            user_id,
-            is_active,
-            updated_since,
-            page,
-            per_page,
+            user_id: None,
+            is_active: None,
+            updated_since: None,
+            page: None,
+            per_page: None,
         }
     }
     /**List all users
@@ -1348,19 +1211,13 @@ Returns a list of your users. The users are returned sorted by creation date, wi
 The response contains an object with a users property that contains an array of up to per_page users. Each entry in the array is a separate user object. If no more users are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your users.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/users/#list-all-users>.*/
-    pub fn list_users(
-        &self,
-        is_active: bool,
-        updated_since: String,
-        page: i64,
-        per_page: i64,
-    ) -> request_model::ListUsersRequest {
+    pub fn list_users(&self) -> request_model::ListUsersRequest {
         request_model::ListUsersRequest {
             client: &self,
-            is_active,
-            updated_since,
-            page,
-            per_page,
+            is_active: None,
+            updated_since: None,
+            page: None,
+            per_page: None,
         }
     }
     /**Create a user
@@ -1418,13 +1275,11 @@ The response contains an object with a project_assignments property that contain
 See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/project-assignments/#list-active-project-assignments-for-the-currently-authenticated-user>.*/
     pub fn list_active_project_assignments_for_the_currently_authenticated_user(
         &self,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ListActiveProjectAssignmentsForTheCurrentlyAuthenticatedUserRequest {
         request_model::ListActiveProjectAssignmentsForTheCurrentlyAuthenticatedUserRequest {
             client: &self,
-            page,
-            per_page,
+            page: None,
+            per_page: None,
         }
     }
     /**Retrieve a user
@@ -1448,14 +1303,12 @@ See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/billabl
     pub fn list_billable_rates_for_specific_user(
         &self,
         user_id: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ListBillableRatesForSpecificUserRequest {
         request_model::ListBillableRatesForSpecificUserRequest {
             client: &self,
             user_id,
-            page,
-            per_page,
+            page: None,
+            per_page: None,
         }
     }
     /**Create a billable rate
@@ -1507,14 +1360,12 @@ See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/cost-ra
     pub fn list_cost_rates_for_specific_user(
         &self,
         user_id: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ListCostRatesForSpecificUserRequest {
         request_model::ListCostRatesForSpecificUserRequest {
             client: &self,
             user_id,
-            page,
-            per_page,
+            page: None,
+            per_page: None,
         }
     }
     /**Create a cost rate
@@ -1566,16 +1417,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/project
     pub fn list_active_project_assignments(
         &self,
         user_id: String,
-        updated_since: String,
-        page: i64,
-        per_page: i64,
     ) -> request_model::ListActiveProjectAssignmentsRequest {
         request_model::ListActiveProjectAssignmentsRequest {
             client: &self,
             user_id,
-            updated_since,
-            page,
-            per_page,
+            updated_since: None,
+            page: None,
+            per_page: None,
         }
     }
 }
