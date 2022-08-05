@@ -37,30 +37,10 @@ pub struct CreateClientRequest<'a> {
 impl<'a> CreateClientRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Client> {
         let mut r = self.client.client.post("/clients");
-        r = r
-            .push_json(
-                json! {
-                    "name", self.name
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "is_active", self.is_active
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "address", self.address
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "currency", self.currency
-                },
-            );
+        r = r.push_json(json!({ "name" : self.name }));
+        r = r.push_json(json!({ "is_active" : self.is_active }));
+        r = r.push_json(json!({ "address" : self.address }));
+        r = r.push_json(json!({ "currency" : self.currency }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -149,54 +129,14 @@ pub struct CreateContactRequest<'a> {
 impl<'a> CreateContactRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Contact> {
         let mut r = self.client.client.post("/contacts");
-        r = r
-            .push_json(
-                json! {
-                    "client_id", self.client_id
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "title", self.title
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "first_name", self.first_name
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "last_name", self.last_name
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "email", self.email
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "phone_office", self.phone_office
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "phone_mobile", self.phone_mobile
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "fax", self.fax
-                },
-            );
+        r = r.push_json(json!({ "client_id" : self.client_id }));
+        r = r.push_json(json!({ "title" : self.title }));
+        r = r.push_json(json!({ "first_name" : self.first_name }));
+        r = r.push_json(json!({ "last_name" : self.last_name }));
+        r = r.push_json(json!({ "email" : self.email }));
+        r = r.push_json(json!({ "phone_office" : self.phone_office }));
+        r = r.push_json(json!({ "phone_mobile" : self.phone_mobile }));
+        r = r.push_json(json!({ "fax" : self.fax }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -259,12 +199,7 @@ pub struct CreateEstimateItemCategoryRequest<'a> {
 impl<'a> CreateEstimateItemCategoryRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::EstimateItemCategory> {
         let mut r = self.client.client.post("/estimate_item_categories");
-        r = r
-            .push_json(
-                json! {
-                    "name", self.name
-                },
-            );
+        r = r.push_json(json!({ "name" : self.name }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -350,72 +285,17 @@ pub struct CreateEstimateRequest<'a> {
 impl<'a> CreateEstimateRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Estimate> {
         let mut r = self.client.client.post("/estimates");
-        r = r
-            .push_json(
-                json! {
-                    "client_id", self.client_id
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "number", self.number
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "purchase_order", self.purchase_order
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "tax", self.tax
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "tax2", self.tax_2
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "discount", self.discount
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "subject", self.subject
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "notes", self.notes
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "currency", self.currency
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "issue_date", self.issue_date
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "line_items", self.line_items
-                },
-            );
+        r = r.push_json(json!({ "client_id" : self.client_id }));
+        r = r.push_json(json!({ "number" : self.number }));
+        r = r.push_json(json!({ "purchase_order" : self.purchase_order }));
+        r = r.push_json(json!({ "tax" : self.tax }));
+        r = r.push_json(json!({ "tax2" : self.tax_2 }));
+        r = r.push_json(json!({ "discount" : self.discount }));
+        r = r.push_json(json!({ "subject" : self.subject }));
+        r = r.push_json(json!({ "notes" : self.notes }));
+        r = r.push_json(json!({ "currency" : self.currency }));
+        r = r.push_json(json!({ "issue_date" : self.issue_date }));
+        r = r.push_json(json!({ "line_items" : self.line_items }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -498,36 +378,11 @@ impl<'a> CreateEstimateMessageRequest<'a> {
                     "/estimates/{estimate_id}/messages", estimate_id = self.estimate_id
                 ),
             );
-        r = r
-            .push_json(
-                json! {
-                    "event_type", self.event_type
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "recipients", self.recipients
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "subject", self.subject
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "body", self.body
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "send_me_a_copy", self.send_me_a_copy
-                },
-            );
+        r = r.push_json(json!({ "event_type" : self.event_type }));
+        r = r.push_json(json!({ "recipients" : self.recipients }));
+        r = r.push_json(json!({ "subject" : self.subject }));
+        r = r.push_json(json!({ "body" : self.body }));
+        r = r.push_json(json!({ "send_me_a_copy" : self.send_me_a_copy }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -574,30 +429,10 @@ pub struct CreateExpenseCategoryRequest<'a> {
 impl<'a> CreateExpenseCategoryRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::ExpenseCategory> {
         let mut r = self.client.client.post("/expense_categories");
-        r = r
-            .push_json(
-                json! {
-                    "name", self.name
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "unit_name", self.unit_name
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "unit_price", self.unit_price
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "is_active", self.is_active
-                },
-            );
+        r = r.push_json(json!({ "name" : self.name }));
+        r = r.push_json(json!({ "unit_name" : self.unit_name }));
+        r = r.push_json(json!({ "unit_price" : self.unit_price }));
+        r = r.push_json(json!({ "is_active" : self.is_active }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -685,60 +520,15 @@ pub struct CreateExpenseRequest<'a> {
 impl<'a> CreateExpenseRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Expense> {
         let mut r = self.client.client.post("/expenses");
-        r = r
-            .push_json(
-                json! {
-                    "user_id", self.user_id
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "project_id", self.project_id
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "expense_category_id", self.expense_category_id
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "spent_date", self.spent_date
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "units", self.units
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "total_cost", self.total_cost
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "notes", self.notes
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "billable", self.billable
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "receipt", self.receipt
-                },
-            );
+        r = r.push_json(json!({ "user_id" : self.user_id }));
+        r = r.push_json(json!({ "project_id" : self.project_id }));
+        r = r.push_json(json!({ "expense_category_id" : self.expense_category_id }));
+        r = r.push_json(json!({ "spent_date" : self.spent_date }));
+        r = r.push_json(json!({ "units" : self.units }));
+        r = r.push_json(json!({ "total_cost" : self.total_cost }));
+        r = r.push_json(json!({ "notes" : self.notes }));
+        r = r.push_json(json!({ "billable" : self.billable }));
+        r = r.push_json(json!({ "receipt" : self.receipt }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -801,12 +591,7 @@ pub struct CreateInvoiceItemCategoryRequest<'a> {
 impl<'a> CreateInvoiceItemCategoryRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::InvoiceItemCategory> {
         let mut r = self.client.client.post("/invoice_item_categories");
-        r = r
-            .push_json(
-                json! {
-                    "name", self.name
-                },
-            );
+        r = r.push_json(json!({ "name" : self.name }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -899,104 +684,24 @@ pub struct CreateInvoiceRequest<'a> {
 impl<'a> CreateInvoiceRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Invoice> {
         let mut r = self.client.client.post("/invoices");
-        r = r
-            .push_json(
-                json! {
-                    "client_id", self.client_id
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "retainer_id", self.retainer_id
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "estimate_id", self.estimate_id
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "number", self.number
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "purchase_order", self.purchase_order
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "tax", self.tax
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "tax2", self.tax_2
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "discount", self.discount
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "subject", self.subject
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "notes", self.notes
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "currency", self.currency
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "issue_date", self.issue_date
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "due_date", self.due_date
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "payment_term", self.payment_term
-                },
-            );
-        if let Some(line_items_import) = self.line_items_import {
-            r = r
-                .push_json(
-                    json! {
-                        "line_items_import", self.line_items_import
-                    },
-                );
+        r = r.push_json(json!({ "client_id" : self.client_id }));
+        r = r.push_json(json!({ "retainer_id" : self.retainer_id }));
+        r = r.push_json(json!({ "estimate_id" : self.estimate_id }));
+        r = r.push_json(json!({ "number" : self.number }));
+        r = r.push_json(json!({ "purchase_order" : self.purchase_order }));
+        r = r.push_json(json!({ "tax" : self.tax }));
+        r = r.push_json(json!({ "tax2" : self.tax_2 }));
+        r = r.push_json(json!({ "discount" : self.discount }));
+        r = r.push_json(json!({ "subject" : self.subject }));
+        r = r.push_json(json!({ "notes" : self.notes }));
+        r = r.push_json(json!({ "currency" : self.currency }));
+        r = r.push_json(json!({ "issue_date" : self.issue_date }));
+        r = r.push_json(json!({ "due_date" : self.due_date }));
+        r = r.push_json(json!({ "payment_term" : self.payment_term }));
+        if let Some(ref line_items_import) = self.line_items_import {
+            r = r.push_json(json!({ "line_items_import" : line_items_import }));
         }
-        r = r
-            .push_json(
-                json! {
-                    "line_items", self.line_items
-                },
-            );
+        r = r.push_json(json!({ "line_items" : self.line_items }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1082,54 +787,20 @@ impl<'a> CreateInvoiceMessageRequest<'a> {
             .post(
                 &format!("/invoices/{invoice_id}/messages", invoice_id = self.invoice_id),
             );
+        r = r.push_json(json!({ "event_type" : self.event_type }));
+        r = r.push_json(json!({ "recipients" : self.recipients }));
+        r = r.push_json(json!({ "subject" : self.subject }));
+        r = r.push_json(json!({ "body" : self.body }));
         r = r
             .push_json(
-                json! {
-                    "event_type", self.event_type
-                },
+                json!(
+                    { "include_link_to_client_invoice" : self
+                    .include_link_to_client_invoice }
+                ),
             );
-        r = r
-            .push_json(
-                json! {
-                    "recipients", self.recipients
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "subject", self.subject
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "body", self.body
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "include_link_to_client_invoice", self.include_link_to_client_invoice
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "attach_pdf", self.attach_pdf
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "send_me_a_copy", self.send_me_a_copy
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "thank_you", self.thank_you
-                },
-            );
+        r = r.push_json(json!({ "attach_pdf" : self.attach_pdf }));
+        r = r.push_json(json!({ "send_me_a_copy" : self.send_me_a_copy }));
+        r = r.push_json(json!({ "thank_you" : self.thank_you }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1186,30 +857,10 @@ impl<'a> CreateInvoicePaymentRequest<'a> {
             .post(
                 &format!("/invoices/{invoice_id}/payments", invoice_id = self.invoice_id),
             );
-        r = r
-            .push_json(
-                json! {
-                    "amount", self.amount
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "paid_at", self.paid_at
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "paid_date", self.paid_date
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "notes", self.notes
-                },
-            );
+        r = r.push_json(json!({ "amount" : self.amount }));
+        r = r.push_json(json!({ "paid_at" : self.paid_at }));
+        r = r.push_json(json!({ "paid_date" : self.paid_date }));
+        r = r.push_json(json!({ "notes" : self.notes }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1274,127 +925,41 @@ pub struct CreateProjectRequest<'a> {
 impl<'a> CreateProjectRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Project> {
         let mut r = self.client.client.post("/projects");
+        r = r.push_json(json!({ "client_id" : self.client_id }));
+        r = r.push_json(json!({ "name" : self.name }));
+        r = r.push_json(json!({ "code" : self.code }));
+        r = r.push_json(json!({ "is_active" : self.is_active }));
+        r = r.push_json(json!({ "is_billable" : self.is_billable }));
+        r = r.push_json(json!({ "is_fixed_fee" : self.is_fixed_fee }));
+        r = r.push_json(json!({ "bill_by" : self.bill_by }));
+        r = r.push_json(json!({ "hourly_rate" : self.hourly_rate }));
+        r = r.push_json(json!({ "budget" : self.budget }));
+        r = r.push_json(json!({ "budget_by" : self.budget_by }));
+        r = r.push_json(json!({ "budget_is_monthly" : self.budget_is_monthly }));
         r = r
             .push_json(
-                json! {
-                    "client_id", self.client_id
-                },
+                json!({ "notify_when_over_budget" : self.notify_when_over_budget }),
             );
         r = r
             .push_json(
-                json! {
-                    "name", self.name
-                },
+                json!(
+                    { "over_budget_notification_percentage" : self
+                    .over_budget_notification_percentage }
+                ),
             );
+        r = r.push_json(json!({ "show_budget_to_all" : self.show_budget_to_all }));
+        r = r.push_json(json!({ "cost_budget" : self.cost_budget }));
         r = r
             .push_json(
-                json! {
-                    "code", self.code
-                },
+                json!(
+                    { "cost_budget_include_expenses" : self.cost_budget_include_expenses
+                    }
+                ),
             );
-        r = r
-            .push_json(
-                json! {
-                    "is_active", self.is_active
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "is_billable", self.is_billable
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "is_fixed_fee", self.is_fixed_fee
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "bill_by", self.bill_by
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "hourly_rate", self.hourly_rate
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "budget", self.budget
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "budget_by", self.budget_by
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "budget_is_monthly", self.budget_is_monthly
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "notify_when_over_budget", self.notify_when_over_budget
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "over_budget_notification_percentage", self
-                    .over_budget_notification_percentage
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "show_budget_to_all", self.show_budget_to_all
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "cost_budget", self.cost_budget
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "cost_budget_include_expenses", self.cost_budget_include_expenses
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "fee", self.fee
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "notes", self.notes
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "starts_on", self.starts_on
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "ends_on", self.ends_on
-                },
-            );
+        r = r.push_json(json!({ "fee" : self.fee }));
+        r = r.push_json(json!({ "notes" : self.notes }));
+        r = r.push_json(json!({ "starts_on" : self.starts_on }));
+        r = r.push_json(json!({ "ends_on" : self.ends_on }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1481,36 +1046,11 @@ impl<'a> CreateTaskAssignmentRequest<'a> {
                     .project_id
                 ),
             );
-        r = r
-            .push_json(
-                json! {
-                    "task_id", self.task_id
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "is_active", self.is_active
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "billable", self.billable
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "hourly_rate", self.hourly_rate
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "budget", self.budget
-                },
-            );
+        r = r.push_json(json!({ "task_id" : self.task_id }));
+        r = r.push_json(json!({ "is_active" : self.is_active }));
+        r = r.push_json(json!({ "billable" : self.billable }));
+        r = r.push_json(json!({ "hourly_rate" : self.hourly_rate }));
+        r = r.push_json(json!({ "budget" : self.budget }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1607,42 +1147,12 @@ impl<'a> CreateUserAssignmentRequest<'a> {
                     .project_id
                 ),
             );
-        r = r
-            .push_json(
-                json! {
-                    "user_id", self.user_id
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "is_active", self.is_active
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "is_project_manager", self.is_project_manager
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "use_default_rates", self.use_default_rates
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "hourly_rate", self.hourly_rate
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "budget", self.budget
-                },
-            );
+        r = r.push_json(json!({ "user_id" : self.user_id }));
+        r = r.push_json(json!({ "is_active" : self.is_active }));
+        r = r.push_json(json!({ "is_project_manager" : self.is_project_manager }));
+        r = r.push_json(json!({ "use_default_rates" : self.use_default_rates }));
+        r = r.push_json(json!({ "hourly_rate" : self.hourly_rate }));
+        r = r.push_json(json!({ "budget" : self.budget }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -1959,18 +1469,8 @@ pub struct CreateRoleRequest<'a> {
 impl<'a> CreateRoleRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Role> {
         let mut r = self.client.client.post("/roles");
-        r = r
-            .push_json(
-                json! {
-                    "name", self.name
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "user_ids", self.user_ids
-                },
-            );
+        r = r.push_json(json!({ "name" : self.name }));
+        r = r.push_json(json!({ "user_ids" : self.user_ids }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -2064,36 +1564,11 @@ pub struct CreateTaskRequest<'a> {
 impl<'a> CreateTaskRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::Task> {
         let mut r = self.client.client.post("/tasks");
-        r = r
-            .push_json(
-                json! {
-                    "name", self.name
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "billable_by_default", self.billable_by_default
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "default_hourly_rate", self.default_hourly_rate
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "is_default", self.is_default
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "is_active", self.is_active
-                },
-            );
+        r = r.push_json(json!({ "name" : self.name }));
+        r = r.push_json(json!({ "billable_by_default" : self.billable_by_default }));
+        r = r.push_json(json!({ "default_hourly_rate" : self.default_hourly_rate }));
+        r = r.push_json(json!({ "is_default" : self.is_default }));
+        r = r.push_json(json!({ "is_active" : self.is_active }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -2186,62 +1661,17 @@ pub struct CreateTimeEntryRequest<'a> {
 impl<'a> CreateTimeEntryRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::TimeEntry> {
         let mut r = self.client.client.post("/time_entries");
-        r = r
-            .push_json(
-                json! {
-                    "user_id", self.user_id
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "project_id", self.project_id
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "task_id", self.task_id
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "spent_date", self.spent_date
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "started_time", self.started_time
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "ended_time", self.ended_time
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "notes", self.notes
-                },
-            );
-        if let Some(external_reference) = self.external_reference {
-            r = r
-                .push_json(
-                    json! {
-                        "external_reference", self.external_reference
-                    },
-                );
+        r = r.push_json(json!({ "user_id" : self.user_id }));
+        r = r.push_json(json!({ "project_id" : self.project_id }));
+        r = r.push_json(json!({ "task_id" : self.task_id }));
+        r = r.push_json(json!({ "spent_date" : self.spent_date }));
+        r = r.push_json(json!({ "started_time" : self.started_time }));
+        r = r.push_json(json!({ "ended_time" : self.ended_time }));
+        r = r.push_json(json!({ "notes" : self.notes }));
+        if let Some(ref external_reference) = self.external_reference {
+            r = r.push_json(json!({ "external_reference" : external_reference }));
         }
-        r = r
-            .push_json(
-                json! {
-                    "hours", self.hours
-                },
-            );
+        r = r.push_json(json!({ "hours" : self.hours }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -2351,73 +1781,23 @@ pub struct CreateUserRequest<'a> {
 impl<'a> CreateUserRequest<'a> {
     pub async fn send(self) -> anyhow::Result<model::User> {
         let mut r = self.client.client.post("/users");
+        r = r.push_json(json!({ "first_name" : self.first_name }));
+        r = r.push_json(json!({ "last_name" : self.last_name }));
+        r = r.push_json(json!({ "email" : self.email }));
+        r = r.push_json(json!({ "timezone" : self.timezone }));
         r = r
             .push_json(
-                json! {
-                    "first_name", self.first_name
-                },
+                json!(
+                    { "has_access_to_all_future_projects" : self
+                    .has_access_to_all_future_projects }
+                ),
             );
-        r = r
-            .push_json(
-                json! {
-                    "last_name", self.last_name
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "email", self.email
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "timezone", self.timezone
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "has_access_to_all_future_projects", self
-                    .has_access_to_all_future_projects
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "is_contractor", self.is_contractor
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "is_active", self.is_active
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "weekly_capacity", self.weekly_capacity
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "default_hourly_rate", self.default_hourly_rate
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "cost_rate", self.cost_rate
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "roles", self.roles
-                },
-            );
+        r = r.push_json(json!({ "is_contractor" : self.is_contractor }));
+        r = r.push_json(json!({ "is_active" : self.is_active }));
+        r = r.push_json(json!({ "weekly_capacity" : self.weekly_capacity }));
+        r = r.push_json(json!({ "default_hourly_rate" : self.default_hourly_rate }));
+        r = r.push_json(json!({ "cost_rate" : self.cost_rate }));
+        r = r.push_json(json!({ "roles" : self.roles }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -2525,18 +1905,8 @@ impl<'a> CreateBillableRateRequest<'a> {
             .client
             .client
             .post(&format!("/users/{user_id}/billable_rates", user_id = self.user_id));
-        r = r
-            .push_json(
-                json! {
-                    "amount", self.amount
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "start_date", self.start_date
-                },
-            );
+        r = r.push_json(json!({ "amount" : self.amount }));
+        r = r.push_json(json!({ "start_date" : self.start_date }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
@@ -2612,18 +1982,8 @@ impl<'a> CreateCostRateRequest<'a> {
             .client
             .client
             .post(&format!("/users/{user_id}/cost_rates", user_id = self.user_id));
-        r = r
-            .push_json(
-                json! {
-                    "amount", self.amount
-                },
-            );
-        r = r
-            .push_json(
-                json! {
-                    "start_date", self.start_date
-                },
-            );
+        r = r.push_json(json!({ "amount" : self.amount }));
+        r = r.push_json(json!({ "start_date" : self.start_date }));
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
         match res {
