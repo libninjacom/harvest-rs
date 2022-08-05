@@ -24,7 +24,7 @@
 
 Harvest client, generated from the OpenAPI spec.
 
-# [Documentation](https://docs.rs/harvest-api/latest/harvest-api)
+# [Documentation](https://docs.rs/harvest-api)
 
 # Contributing
 
