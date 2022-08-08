@@ -10,7 +10,7 @@ pub struct ListClientsRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListClientsRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Clients> {
+    pub async fn send(self) -> anyhow::Result<Clients> {
         let mut r = self.client.client.get("/clients");
         if let Some(ref is_active) = self.is_active {
             r = r.push_query("is_active", &is_active.to_string());
@@ -59,7 +59,7 @@ pub struct CreateClientRequest<'a> {
     pub currency: String,
 }
 impl<'a> CreateClientRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Client> {
+    pub async fn send(self) -> anyhow::Result<Client> {
         let mut r = self.client.client.post("/clients");
         r = r.push_json(json!({ "name" : self.name }));
         r = r.push_json(json!({ "is_active" : self.is_active }));
@@ -81,7 +81,7 @@ pub struct RetrieveClientRequest<'a> {
     pub client_id: String,
 }
 impl<'a> RetrieveClientRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Client> {
+    pub async fn send(self) -> anyhow::Result<Client> {
         let mut r = self
             .client
             .client
@@ -101,7 +101,7 @@ pub struct RetrieveCompanyRequest<'a> {
     pub(crate) client: &'a HarvestClient,
 }
 impl<'a> RetrieveCompanyRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Company> {
+    pub async fn send(self) -> anyhow::Result<Company> {
         let mut r = self.client.client.get("/company");
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
@@ -122,7 +122,7 @@ pub struct ListContactsRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListContactsRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Contacts> {
+    pub async fn send(self) -> anyhow::Result<Contacts> {
         let mut r = self.client.client.get("/contacts");
         if let Some(ref client_id) = self.client_id {
             r = r.push_query("client_id", &client_id.to_string());
@@ -175,7 +175,7 @@ pub struct CreateContactRequest<'a> {
     pub fax: String,
 }
 impl<'a> CreateContactRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Contact> {
+    pub async fn send(self) -> anyhow::Result<Contact> {
         let mut r = self.client.client.post("/contacts");
         r = r.push_json(json!({ "client_id" : self.client_id }));
         r = r.push_json(json!({ "title" : self.title }));
@@ -201,7 +201,7 @@ pub struct RetrieveContactRequest<'a> {
     pub contact_id: String,
 }
 impl<'a> RetrieveContactRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Contact> {
+    pub async fn send(self) -> anyhow::Result<Contact> {
         let mut r = self
             .client
             .client
@@ -224,7 +224,7 @@ pub struct ListEstimateItemCategoriesRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListEstimateItemCategoriesRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::EstimateItemCategories> {
+    pub async fn send(self) -> anyhow::Result<EstimateItemCategories> {
         let mut r = self.client.client.get("/estimate_item_categories");
         if let Some(ref updated_since) = self.updated_since {
             r = r.push_query("updated_since", &updated_since.to_string());
@@ -263,7 +263,7 @@ pub struct CreateEstimateItemCategoryRequest<'a> {
     pub name: String,
 }
 impl<'a> CreateEstimateItemCategoryRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::EstimateItemCategory> {
+    pub async fn send(self) -> anyhow::Result<EstimateItemCategory> {
         let mut r = self.client.client.post("/estimate_item_categories");
         r = r.push_json(json!({ "name" : self.name }));
         r = self.client.authenticate(r);
@@ -282,7 +282,7 @@ pub struct RetrieveEstimateItemCategoryRequest<'a> {
     pub estimate_item_category_id: String,
 }
 impl<'a> RetrieveEstimateItemCategoryRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::EstimateItemCategory> {
+    pub async fn send(self) -> anyhow::Result<EstimateItemCategory> {
         let mut r = self
             .client
             .client
@@ -314,7 +314,7 @@ pub struct ListEstimatesRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListEstimatesRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Estimates> {
+    pub async fn send(self) -> anyhow::Result<Estimates> {
         let mut r = self.client.client.get("/estimates");
         if let Some(ref client_id) = self.client_id {
             r = r.push_query("client_id", &client_id.to_string());
@@ -382,7 +382,7 @@ pub struct CreateEstimateRequest<'a> {
     pub number: String,
     pub purchase_order: String,
     pub tax: f64,
-    pub tax_2: f64,
+    pub tax2: f64,
     pub discount: f64,
     pub subject: String,
     pub notes: String,
@@ -391,13 +391,13 @@ pub struct CreateEstimateRequest<'a> {
     pub line_items: Vec<serde_json::Value>,
 }
 impl<'a> CreateEstimateRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Estimate> {
+    pub async fn send(self) -> anyhow::Result<Estimate> {
         let mut r = self.client.client.post("/estimates");
         r = r.push_json(json!({ "client_id" : self.client_id }));
         r = r.push_json(json!({ "number" : self.number }));
         r = r.push_json(json!({ "purchase_order" : self.purchase_order }));
         r = r.push_json(json!({ "tax" : self.tax }));
-        r = r.push_json(json!({ "tax2" : self.tax_2 }));
+        r = r.push_json(json!({ "tax2" : self.tax2 }));
         r = r.push_json(json!({ "discount" : self.discount }));
         r = r.push_json(json!({ "subject" : self.subject }));
         r = r.push_json(json!({ "notes" : self.notes }));
@@ -420,7 +420,7 @@ pub struct RetrieveEstimateRequest<'a> {
     pub estimate_id: String,
 }
 impl<'a> RetrieveEstimateRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Estimate> {
+    pub async fn send(self) -> anyhow::Result<Estimate> {
         let mut r = self
             .client
             .client
@@ -444,7 +444,7 @@ pub struct ListMessagesForEstimateRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListMessagesForEstimateRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::EstimateMessages> {
+    pub async fn send(self) -> anyhow::Result<EstimateMessages> {
         let mut r = self
             .client
             .client
@@ -495,7 +495,7 @@ pub struct CreateEstimateMessageRequest<'a> {
     pub send_me_a_copy: bool,
 }
 impl<'a> CreateEstimateMessageRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::EstimateMessage> {
+    pub async fn send(self) -> anyhow::Result<EstimateMessage> {
         let mut r = self
             .client
             .client
@@ -528,7 +528,7 @@ pub struct ListExpenseCategoriesRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListExpenseCategoriesRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::ExpenseCategories> {
+    pub async fn send(self) -> anyhow::Result<ExpenseCategories> {
         let mut r = self.client.client.get("/expense_categories");
         if let Some(ref is_active) = self.is_active {
             r = r.push_query("is_active", &is_active.to_string());
@@ -577,7 +577,7 @@ pub struct CreateExpenseCategoryRequest<'a> {
     pub is_active: bool,
 }
 impl<'a> CreateExpenseCategoryRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::ExpenseCategory> {
+    pub async fn send(self) -> anyhow::Result<ExpenseCategory> {
         let mut r = self.client.client.post("/expense_categories");
         r = r.push_json(json!({ "name" : self.name }));
         r = r.push_json(json!({ "unit_name" : self.unit_name }));
@@ -599,7 +599,7 @@ pub struct RetrieveExpenseCategoryRequest<'a> {
     pub expense_category_id: String,
 }
 impl<'a> RetrieveExpenseCategoryRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::ExpenseCategory> {
+    pub async fn send(self) -> anyhow::Result<ExpenseCategory> {
         let mut r = self
             .client
             .client
@@ -633,7 +633,7 @@ pub struct ListExpensesRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListExpensesRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Expenses> {
+    pub async fn send(self) -> anyhow::Result<Expenses> {
         let mut r = self.client.client.get("/expenses");
         if let Some(ref user_id) = self.user_id {
             r = r.push_query("user_id", &user_id.to_string());
@@ -722,7 +722,7 @@ pub struct CreateExpenseRequest<'a> {
     pub receipt: String,
 }
 impl<'a> CreateExpenseRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Expense> {
+    pub async fn send(self) -> anyhow::Result<Expense> {
         let mut r = self.client.client.post("/expenses");
         r = r.push_json(json!({ "user_id" : self.user_id }));
         r = r.push_json(json!({ "project_id" : self.project_id }));
@@ -749,7 +749,7 @@ pub struct RetrieveExpenseRequest<'a> {
     pub expense_id: String,
 }
 impl<'a> RetrieveExpenseRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Expense> {
+    pub async fn send(self) -> anyhow::Result<Expense> {
         let mut r = self
             .client
             .client
@@ -772,7 +772,7 @@ pub struct ListInvoiceItemCategoriesRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListInvoiceItemCategoriesRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::InvoiceItemCategories> {
+    pub async fn send(self) -> anyhow::Result<InvoiceItemCategories> {
         let mut r = self.client.client.get("/invoice_item_categories");
         if let Some(ref updated_since) = self.updated_since {
             r = r.push_query("updated_since", &updated_since.to_string());
@@ -811,7 +811,7 @@ pub struct CreateInvoiceItemCategoryRequest<'a> {
     pub name: String,
 }
 impl<'a> CreateInvoiceItemCategoryRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::InvoiceItemCategory> {
+    pub async fn send(self) -> anyhow::Result<InvoiceItemCategory> {
         let mut r = self.client.client.post("/invoice_item_categories");
         r = r.push_json(json!({ "name" : self.name }));
         r = self.client.authenticate(r);
@@ -830,7 +830,7 @@ pub struct RetrieveInvoiceItemCategoryRequest<'a> {
     pub invoice_item_category_id: String,
 }
 impl<'a> RetrieveInvoiceItemCategoryRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::InvoiceItemCategory> {
+    pub async fn send(self) -> anyhow::Result<InvoiceItemCategory> {
         let mut r = self
             .client
             .client
@@ -863,7 +863,7 @@ pub struct ListInvoicesRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListInvoicesRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Invoices> {
+    pub async fn send(self) -> anyhow::Result<Invoices> {
         let mut r = self.client.client.get("/invoices");
         if let Some(ref client_id) = self.client_id {
             r = r.push_query("client_id", &client_id.to_string());
@@ -940,7 +940,7 @@ pub struct CreateInvoiceRequest<'a> {
     pub number: String,
     pub purchase_order: String,
     pub tax: f64,
-    pub tax_2: f64,
+    pub tax2: f64,
     pub discount: f64,
     pub subject: String,
     pub notes: String,
@@ -952,7 +952,7 @@ pub struct CreateInvoiceRequest<'a> {
     pub line_items: Vec<serde_json::Value>,
 }
 impl<'a> CreateInvoiceRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Invoice> {
+    pub async fn send(self) -> anyhow::Result<Invoice> {
         let mut r = self.client.client.post("/invoices");
         r = r.push_json(json!({ "client_id" : self.client_id }));
         r = r.push_json(json!({ "retainer_id" : self.retainer_id }));
@@ -960,7 +960,7 @@ impl<'a> CreateInvoiceRequest<'a> {
         r = r.push_json(json!({ "number" : self.number }));
         r = r.push_json(json!({ "purchase_order" : self.purchase_order }));
         r = r.push_json(json!({ "tax" : self.tax }));
-        r = r.push_json(json!({ "tax2" : self.tax_2 }));
+        r = r.push_json(json!({ "tax2" : self.tax2 }));
         r = r.push_json(json!({ "discount" : self.discount }));
         r = r.push_json(json!({ "subject" : self.subject }));
         r = r.push_json(json!({ "notes" : self.notes }));
@@ -992,7 +992,7 @@ pub struct RetrieveInvoiceRequest<'a> {
     pub invoice_id: String,
 }
 impl<'a> RetrieveInvoiceRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Invoice> {
+    pub async fn send(self) -> anyhow::Result<Invoice> {
         let mut r = self
             .client
             .client
@@ -1016,7 +1016,7 @@ pub struct ListMessagesForInvoiceRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListMessagesForInvoiceRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::InvoiceMessages> {
+    pub async fn send(self) -> anyhow::Result<InvoiceMessages> {
         let mut r = self
             .client
             .client
@@ -1068,7 +1068,7 @@ pub struct CreateInvoiceMessageRequest<'a> {
     pub thank_you: bool,
 }
 impl<'a> CreateInvoiceMessageRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::InvoiceMessage> {
+    pub async fn send(self) -> anyhow::Result<InvoiceMessage> {
         let mut r = self
             .client
             .client
@@ -1108,7 +1108,7 @@ pub struct ListPaymentsForInvoiceRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListPaymentsForInvoiceRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::InvoicePayments> {
+    pub async fn send(self) -> anyhow::Result<InvoicePayments> {
         let mut r = self
             .client
             .client
@@ -1156,7 +1156,7 @@ pub struct CreateInvoicePaymentRequest<'a> {
     pub notes: String,
 }
 impl<'a> CreateInvoicePaymentRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::InvoicePayment> {
+    pub async fn send(self) -> anyhow::Result<InvoicePayment> {
         let mut r = self
             .client
             .client
@@ -1187,7 +1187,7 @@ pub struct ListProjectsRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListProjectsRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Projects> {
+    pub async fn send(self) -> anyhow::Result<Projects> {
         let mut r = self.client.client.get("/projects");
         if let Some(ref is_active) = self.is_active {
             r = r.push_query("is_active", &is_active.to_string());
@@ -1259,7 +1259,7 @@ pub struct CreateProjectRequest<'a> {
     pub ends_on: String,
 }
 impl<'a> CreateProjectRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Project> {
+    pub async fn send(self) -> anyhow::Result<Project> {
         let mut r = self.client.client.post("/projects");
         r = r.push_json(json!({ "client_id" : self.client_id }));
         r = r.push_json(json!({ "name" : self.name }));
@@ -1312,7 +1312,7 @@ pub struct RetrieveProjectRequest<'a> {
     pub project_id: String,
 }
 impl<'a> RetrieveProjectRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Project> {
+    pub async fn send(self) -> anyhow::Result<Project> {
         let mut r = self
             .client
             .client
@@ -1337,7 +1337,7 @@ pub struct ListTaskAssignmentsForSpecificProjectRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListTaskAssignmentsForSpecificProjectRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::TaskAssignments> {
+    pub async fn send(self) -> anyhow::Result<TaskAssignments> {
         let mut r = self
             .client
             .client
@@ -1396,7 +1396,7 @@ pub struct CreateTaskAssignmentRequest<'a> {
     pub budget: f64,
 }
 impl<'a> CreateTaskAssignmentRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::TaskAssignment> {
+    pub async fn send(self) -> anyhow::Result<TaskAssignment> {
         let mut r = self
             .client
             .client
@@ -1428,7 +1428,7 @@ pub struct RetrieveTaskAssignmentRequest<'a> {
     pub task_assignment_id: String,
 }
 impl<'a> RetrieveTaskAssignmentRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::TaskAssignment> {
+    pub async fn send(self) -> anyhow::Result<TaskAssignment> {
         let mut r = self
             .client
             .client
@@ -1460,7 +1460,7 @@ pub struct ListUserAssignmentsForSpecificProjectRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListUserAssignmentsForSpecificProjectRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::UserAssignments> {
+    pub async fn send(self) -> anyhow::Result<UserAssignments> {
         let mut r = self
             .client
             .client
@@ -1527,7 +1527,7 @@ pub struct CreateUserAssignmentRequest<'a> {
     pub budget: f64,
 }
 impl<'a> CreateUserAssignmentRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::UserAssignment> {
+    pub async fn send(self) -> anyhow::Result<UserAssignment> {
         let mut r = self
             .client
             .client
@@ -1560,7 +1560,7 @@ pub struct RetrieveUserAssignmentRequest<'a> {
     pub user_assignment_id: String,
 }
 impl<'a> RetrieveUserAssignmentRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::UserAssignment> {
+    pub async fn send(self) -> anyhow::Result<UserAssignment> {
         let mut r = self
             .client
             .client
@@ -1590,7 +1590,7 @@ pub struct ExpenseCategoriesReportRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ExpenseCategoriesReportRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::ExpenseReportsResults> {
+    pub async fn send(self) -> anyhow::Result<ExpenseReportsResults> {
         let mut r = self.client.client.get("/reports/expenses/categories");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
@@ -1627,7 +1627,7 @@ pub struct ClientsExpensesReportRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ClientsExpensesReportRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::ExpenseReportsResults> {
+    pub async fn send(self) -> anyhow::Result<ExpenseReportsResults> {
         let mut r = self.client.client.get("/reports/expenses/clients");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
@@ -1664,7 +1664,7 @@ pub struct ProjectsExpensesReportRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ProjectsExpensesReportRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::ExpenseReportsResults> {
+    pub async fn send(self) -> anyhow::Result<ExpenseReportsResults> {
         let mut r = self.client.client.get("/reports/expenses/projects");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
@@ -1701,7 +1701,7 @@ pub struct TeamExpensesReportRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> TeamExpensesReportRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::ExpenseReportsResults> {
+    pub async fn send(self) -> anyhow::Result<ExpenseReportsResults> {
         let mut r = self.client.client.get("/reports/expenses/team");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
@@ -1737,7 +1737,7 @@ pub struct ProjectBudgetReportRequest<'a> {
     pub is_active: Option<bool>,
 }
 impl<'a> ProjectBudgetReportRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::ProjectBudgetReportResults> {
+    pub async fn send(self) -> anyhow::Result<ProjectBudgetReportResults> {
         let mut r = self.client.client.get("/reports/project_budget");
         if let Some(ref page) = self.page {
             r = r.push_query("page", &page.to_string());
@@ -1779,7 +1779,7 @@ pub struct ClientsTimeReportRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ClientsTimeReportRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::TimeReportsResults> {
+    pub async fn send(self) -> anyhow::Result<TimeReportsResults> {
         let mut r = self.client.client.get("/reports/time/clients");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
@@ -1816,7 +1816,7 @@ pub struct ProjectsTimeReportRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ProjectsTimeReportRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::TimeReportsResults> {
+    pub async fn send(self) -> anyhow::Result<TimeReportsResults> {
         let mut r = self.client.client.get("/reports/time/projects");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
@@ -1853,7 +1853,7 @@ pub struct TasksReportRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> TasksReportRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::TimeReportsResults> {
+    pub async fn send(self) -> anyhow::Result<TimeReportsResults> {
         let mut r = self.client.client.get("/reports/time/tasks");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
@@ -1890,7 +1890,7 @@ pub struct TeamTimeReportRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> TeamTimeReportRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::TimeReportsResults> {
+    pub async fn send(self) -> anyhow::Result<TimeReportsResults> {
         let mut r = self.client.client.get("/reports/time/team");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
@@ -1927,7 +1927,7 @@ pub struct UninvoicedReportRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> UninvoicedReportRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::UninvoicedReportResults> {
+    pub async fn send(self) -> anyhow::Result<UninvoicedReportResults> {
         let mut r = self.client.client.get("/reports/uninvoiced");
         r = r.push_query("from", &self.from.to_string());
         r = r.push_query("to", &self.to.to_string());
@@ -1962,7 +1962,7 @@ pub struct ListRolesRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListRolesRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Roles> {
+    pub async fn send(self) -> anyhow::Result<Roles> {
         let mut r = self.client.client.get("/roles");
         if let Some(ref page) = self.page {
             r = r.push_query("page", &page.to_string());
@@ -1995,7 +1995,7 @@ pub struct CreateRoleRequest<'a> {
     pub user_ids: Vec<i64>,
 }
 impl<'a> CreateRoleRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Role> {
+    pub async fn send(self) -> anyhow::Result<Role> {
         let mut r = self.client.client.post("/roles");
         r = r.push_json(json!({ "name" : self.name }));
         r = r.push_json(json!({ "user_ids" : self.user_ids }));
@@ -2015,7 +2015,7 @@ pub struct RetrieveRoleRequest<'a> {
     pub role_id: String,
 }
 impl<'a> RetrieveRoleRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Role> {
+    pub async fn send(self) -> anyhow::Result<Role> {
         let mut r = self
             .client
             .client
@@ -2039,7 +2039,7 @@ pub struct ListTaskAssignmentsRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListTaskAssignmentsRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::TaskAssignments> {
+    pub async fn send(self) -> anyhow::Result<TaskAssignments> {
         let mut r = self.client.client.get("/task_assignments");
         if let Some(ref is_active) = self.is_active {
             r = r.push_query("is_active", &is_active.to_string());
@@ -2088,7 +2088,7 @@ pub struct ListTasksRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListTasksRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Tasks> {
+    pub async fn send(self) -> anyhow::Result<Tasks> {
         let mut r = self.client.client.get("/tasks");
         if let Some(ref is_active) = self.is_active {
             r = r.push_query("is_active", &is_active.to_string());
@@ -2138,7 +2138,7 @@ pub struct CreateTaskRequest<'a> {
     pub is_active: bool,
 }
 impl<'a> CreateTaskRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Task> {
+    pub async fn send(self) -> anyhow::Result<Task> {
         let mut r = self.client.client.post("/tasks");
         r = r.push_json(json!({ "name" : self.name }));
         r = r.push_json(json!({ "billable_by_default" : self.billable_by_default }));
@@ -2161,7 +2161,7 @@ pub struct RetrieveTaskRequest<'a> {
     pub task_id: String,
 }
 impl<'a> RetrieveTaskRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Task> {
+    pub async fn send(self) -> anyhow::Result<Task> {
         let mut r = self
             .client
             .client
@@ -2193,7 +2193,7 @@ pub struct ListTimeEntriesRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListTimeEntriesRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::TimeEntries> {
+    pub async fn send(self) -> anyhow::Result<TimeEntries> {
         let mut r = self.client.client.get("/time_entries");
         if let Some(ref user_id) = self.user_id {
             r = r.push_query("user_id", &user_id.to_string());
@@ -2304,7 +2304,7 @@ pub struct CreateTimeEntryRequest<'a> {
     pub hours: f64,
 }
 impl<'a> CreateTimeEntryRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::TimeEntry> {
+    pub async fn send(self) -> anyhow::Result<TimeEntry> {
         let mut r = self.client.client.post("/time_entries");
         r = r.push_json(json!({ "user_id" : self.user_id }));
         r = r.push_json(json!({ "project_id" : self.project_id }));
@@ -2337,7 +2337,7 @@ pub struct RetrieveTimeEntryRequest<'a> {
     pub time_entry_id: String,
 }
 impl<'a> RetrieveTimeEntryRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::TimeEntry> {
+    pub async fn send(self) -> anyhow::Result<TimeEntry> {
         let mut r = self
             .client
             .client
@@ -2366,7 +2366,7 @@ pub struct ListUserAssignmentsRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListUserAssignmentsRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::UserAssignments> {
+    pub async fn send(self) -> anyhow::Result<UserAssignments> {
         let mut r = self.client.client.get("/user_assignments");
         if let Some(ref user_id) = self.user_id {
             r = r.push_query("user_id", &user_id.to_string());
@@ -2422,7 +2422,7 @@ pub struct ListUsersRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListUsersRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::Users> {
+    pub async fn send(self) -> anyhow::Result<Users> {
         let mut r = self.client.client.get("/users");
         if let Some(ref is_active) = self.is_active {
             r = r.push_query("is_active", &is_active.to_string());
@@ -2478,7 +2478,7 @@ pub struct CreateUserRequest<'a> {
     pub roles: Vec<String>,
 }
 impl<'a> CreateUserRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::User> {
+    pub async fn send(self) -> anyhow::Result<User> {
         let mut r = self.client.client.post("/users");
         r = r.push_json(json!({ "first_name" : self.first_name }));
         r = r.push_json(json!({ "last_name" : self.last_name }));
@@ -2512,7 +2512,7 @@ pub struct RetrieveTheCurrentlyAuthenticatedUserRequest<'a> {
     pub(crate) client: &'a HarvestClient,
 }
 impl<'a> RetrieveTheCurrentlyAuthenticatedUserRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::User> {
+    pub async fn send(self) -> anyhow::Result<User> {
         let mut r = self.client.client.get("/users/me");
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
@@ -2531,7 +2531,7 @@ pub struct ListActiveProjectAssignmentsForTheCurrentlyAuthenticatedUserRequest<'
     pub per_page: Option<i64>,
 }
 impl<'a> ListActiveProjectAssignmentsForTheCurrentlyAuthenticatedUserRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::ProjectAssignments> {
+    pub async fn send(self) -> anyhow::Result<ProjectAssignments> {
         let mut r = self.client.client.get("/users/me/project_assignments");
         if let Some(ref page) = self.page {
             r = r.push_query("page", &page.to_string());
@@ -2563,7 +2563,7 @@ pub struct RetrieveUserRequest<'a> {
     pub user_id: String,
 }
 impl<'a> RetrieveUserRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::User> {
+    pub async fn send(self) -> anyhow::Result<User> {
         let mut r = self
             .client
             .client
@@ -2586,7 +2586,7 @@ pub struct ListBillableRatesForSpecificUserRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListBillableRatesForSpecificUserRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::BillableRates> {
+    pub async fn send(self) -> anyhow::Result<BillableRates> {
         let mut r = self
             .client
             .client
@@ -2623,7 +2623,7 @@ pub struct CreateBillableRateRequest<'a> {
     pub start_date: String,
 }
 impl<'a> CreateBillableRateRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::BillableRate> {
+    pub async fn send(self) -> anyhow::Result<BillableRate> {
         let mut r = self
             .client
             .client
@@ -2647,7 +2647,7 @@ pub struct RetrieveBillableRateRequest<'a> {
     pub billable_rate_id: String,
 }
 impl<'a> RetrieveBillableRateRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::BillableRate> {
+    pub async fn send(self) -> anyhow::Result<BillableRate> {
         let mut r = self
             .client
             .client
@@ -2675,7 +2675,7 @@ pub struct ListCostRatesForSpecificUserRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListCostRatesForSpecificUserRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::CostRates> {
+    pub async fn send(self) -> anyhow::Result<CostRates> {
         let mut r = self
             .client
             .client
@@ -2712,7 +2712,7 @@ pub struct CreateCostRateRequest<'a> {
     pub start_date: String,
 }
 impl<'a> CreateCostRateRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::CostRate> {
+    pub async fn send(self) -> anyhow::Result<CostRate> {
         let mut r = self
             .client
             .client
@@ -2736,7 +2736,7 @@ pub struct RetrieveCostRateRequest<'a> {
     pub cost_rate_id: String,
 }
 impl<'a> RetrieveCostRateRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::CostRate> {
+    pub async fn send(self) -> anyhow::Result<CostRate> {
         let mut r = self
             .client
             .client
@@ -2765,7 +2765,7 @@ pub struct ListActiveProjectAssignmentsRequest<'a> {
     pub per_page: Option<i64>,
 }
 impl<'a> ListActiveProjectAssignmentsRequest<'a> {
-    pub async fn send(self) -> anyhow::Result<model::ProjectAssignments> {
+    pub async fn send(self) -> anyhow::Result<ProjectAssignments> {
         let mut r = self
             .client
             .client

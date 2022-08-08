@@ -297,10 +297,10 @@ pub struct Invoice {
     pub tax_amount: Option<f64>,
     #[serde(rename = "tax2")]
     ///This percentage is applied to the subtotal, including line items and discounts.
-    pub tax_2: Option<f64>,
+    pub tax2: Option<f64>,
     #[serde(rename = "tax2_amount")]
     ///The amount calculated from tax2.
-    pub tax_2_amount: Option<f64>,
+    pub tax2_amount: Option<f64>,
     #[serde(rename = "discount")]
     ///This percentage is subtracted from the subtotal.
     pub discount: Option<f64>,
@@ -389,7 +389,7 @@ pub struct InvoiceLineItem {
     pub taxed: Option<bool>,
     #[serde(rename = "taxed2")]
     ///Whether the invoice’s tax2 percentage applies to this line item.
-    pub taxed_2: Option<bool>,
+    pub taxed2: Option<bool>,
 }
 impl std::fmt::Display for InvoiceLineItem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
@@ -514,10 +514,10 @@ pub struct Estimate {
     pub tax_amount: Option<f64>,
     #[serde(rename = "tax2")]
     ///This percentage is applied to the subtotal, including line items and discounts.
-    pub tax_2: Option<f64>,
+    pub tax2: Option<f64>,
     #[serde(rename = "tax2_amount")]
     ///The amount calculated from tax2.
-    pub tax_2_amount: Option<f64>,
+    pub tax2_amount: Option<f64>,
     #[serde(rename = "discount")]
     ///This percentage is subtracted from the subtotal.
     pub discount: Option<f64>,
@@ -585,7 +585,7 @@ pub struct EstimateLineItem {
     pub taxed: Option<bool>,
     #[serde(rename = "taxed2")]
     ///Whether the estimate’s tax2 percentage applies to this line item.
-    pub taxed_2: Option<bool>,
+    pub taxed2: Option<bool>,
 }
 impl std::fmt::Display for EstimateLineItem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
@@ -1146,6 +1146,12 @@ pub struct User {
     #[serde(rename = "updated_at")]
     ///Date and time the user was last updated.
     pub updated_at: Option<String>,
+    #[serde(rename = "is_admin")]
+    ///Whether the user has Admin permissions.
+    pub is_admin: Option<bool>,
+    #[serde(rename = "is_project_manager")]
+    ///Whether the user has Project Manager permissions.
+    pub is_project_manager: Option<bool>,
 }
 impl std::fmt::Display for User {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
