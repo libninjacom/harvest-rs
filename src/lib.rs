@@ -2,35 +2,41 @@
 //!
 //! Library created with [`libninja`](https://www.libninja.com).
 #![allow(non_camel_case_types)]
+#![allow(unused)]
 pub mod model;
-pub mod request_model;
+pub mod request;
 use crate::model::*;
 
 pub struct HarvestClient {
     pub(crate) client: httpclient::Client,
-    authentication: Option<HarvestAuthentication>,
+    authentication: HarvestAuthentication,
 }
-impl HarvestClient {}
 impl HarvestClient {
-    pub fn new(url: &str) -> Self {
+    pub fn from_env() -> Self {
+        let url = "https://api.harvestapp.com/v2".to_string();
+        Self {
+            client: httpclient::Client::new(Some(url)),
+            authentication: HarvestAuthentication::from_env(),
+        }
+    }
+}
+impl HarvestClient {
+    pub fn new(url: &str, authentication: HarvestAuthentication) -> Self {
         let client = httpclient::Client::new(Some(url.to_string()));
-        let authentication = None;
         Self { client, authentication }
     }
     pub fn with_authentication(mut self, authentication: HarvestAuthentication) -> Self {
-        self.authentication = Some(authentication);
+        self.authentication = authentication;
         self
     }
     pub fn authenticate<'a>(
         &self,
         mut r: httpclient::RequestBuilder<'a>,
     ) -> httpclient::RequestBuilder<'a> {
-        if let Some(ref authentication) = self.authentication {
-            match authentication {
-                HarvestAuthentication::BearerAuth { bearer_auth, account_auth } => {
-                    r = r.bearer_auth(bearer_auth);
-                    r = r.header("Harvest-Account-Id", account_auth);
-                }
+        match &self.authentication {
+            HarvestAuthentication::BearerAuth { bearer_auth, account_auth } => {
+                r = r.header("Authorization", bearer_auth);
+                r = r.header("Harvest-Account-Id", account_auth);
             }
         }
         r
@@ -49,8 +55,8 @@ Returns a list of your clients. The clients are returned sorted by creation date
 The response contains an object with a clients property that contains an array of up to per_page clients. Each entry in the array is a separate client object. If no more clients are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your clients.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/clients-api/clients/clients/#list-all-clients>.*/
-    pub fn list_clients(&self) -> request_model::ListClientsRequest {
-        request_model::ListClientsRequest {
+    pub fn list_clients(&self) -> request::ListClientsRequest {
+        request::ListClientsRequest {
             client: &self,
             is_active: None,
             updated_since: None,
@@ -63,19 +69,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/clients-api/clients/cli
 Creates a new client object. Returns a client object and a 201 Created response code if the call succeeded.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/clients-api/clients/clients/#create-a-client>.*/
-    pub fn create_client(
-        &self,
-        name: String,
-        is_active: bool,
-        address: String,
-        currency: String,
-    ) -> request_model::CreateClientRequest {
-        request_model::CreateClientRequest {
+    pub fn create_client(&self) -> request::CreateClientRequest {
+        request::CreateClientRequest {
             client: &self,
-            name,
-            is_active,
-            address,
-            currency,
+            name: None,
+            is_active: None,
+            address: None,
+            currency: None,
         }
     }
     /**Retrieve a client
@@ -83,13 +83,36 @@ See endpoint docs at <https://help.getharvest.com/api-v2/clients-api/clients/cli
 Retrieves the client with the given ID. Returns a client object and a 200 OK response code if a valid identifier was provided.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/clients-api/clients/clients/#retrieve-a-client>.*/
-    pub fn retrieve_client(
-        &self,
-        client_id: String,
-    ) -> request_model::RetrieveClientRequest {
-        request_model::RetrieveClientRequest {
+    pub fn retrieve_client(&self, client_id: &str) -> request::RetrieveClientRequest {
+        request::RetrieveClientRequest {
             client: &self,
-            client_id,
+            client_id: client_id.to_owned(),
+        }
+    }
+    /**Delete a client
+
+Delete a client. Deleting a client is only possible if it has no projects, invoices, or estimates associated with it. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/clients-api/clients/clients/#delete-a-client>.*/
+    pub fn delete_client(&self, client_id: &str) -> request::DeleteClientRequest {
+        request::DeleteClientRequest {
+            client: &self,
+            client_id: client_id.to_owned(),
+        }
+    }
+    /**Update a client
+
+Updates the specific client by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a client object and a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/clients-api/clients/clients/#update-a-client>.*/
+    pub fn update_client(&self, client_id: &str) -> request::UpdateClientRequest {
+        request::UpdateClientRequest {
+            client: &self,
+            client_id: client_id.to_owned(),
+            name: None,
+            is_active: None,
+            address: None,
+            currency: None,
         }
     }
     /**Retrieve a company
@@ -98,9 +121,21 @@ Retrieves the company for the currently authenticated user. Returns a
 company object and a 200 OK response code.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/company-api/company/company/#retrieve-a-company>.*/
-    pub fn retrieve_company(&self) -> request_model::RetrieveCompanyRequest {
-        request_model::RetrieveCompanyRequest {
+    pub fn retrieve_company(&self) -> request::RetrieveCompanyRequest {
+        request::RetrieveCompanyRequest {
             client: &self,
+        }
+    }
+    /**Update a company
+
+Updates the company setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a company object and a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/company-api/company/company/#update-a-company>.*/
+    pub fn update_company(&self) -> request::UpdateCompanyRequest {
+        request::UpdateCompanyRequest {
+            client: &self,
+            wants_timestamp_timers: None,
+            weekly_capacity: None,
         }
     }
     /**List all contacts
@@ -110,8 +145,8 @@ Returns a list of your contacts. The contacts are returned sorted by creation da
 The response contains an object with a contacts property that contains an array of up to per_page contacts. Each entry in the array is a separate contact object. If no more contacts are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your contacts.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/clients-api/clients/contacts/#list-all-contacts>.*/
-    pub fn list_contacts(&self) -> request_model::ListContactsRequest {
-        request_model::ListContactsRequest {
+    pub fn list_contacts(&self) -> request::ListContactsRequest {
+        request::ListContactsRequest {
             client: &self,
             client_id: None,
             updated_since: None,
@@ -124,27 +159,17 @@ See endpoint docs at <https://help.getharvest.com/api-v2/clients-api/clients/con
 Creates a new contact object. Returns a contact object and a 201 Created response code if the call succeeded.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/clients-api/clients/contacts/#create-a-contact>.*/
-    pub fn create_contact(
-        &self,
-        client_id: i64,
-        title: String,
-        first_name: String,
-        last_name: String,
-        email: String,
-        phone_office: String,
-        phone_mobile: String,
-        fax: String,
-    ) -> request_model::CreateContactRequest {
-        request_model::CreateContactRequest {
+    pub fn create_contact(&self) -> request::CreateContactRequest {
+        request::CreateContactRequest {
             client: &self,
-            client_id,
-            title,
-            first_name,
-            last_name,
-            email,
-            phone_office,
-            phone_mobile,
-            fax,
+            client_id: None,
+            title: None,
+            first_name: None,
+            last_name: None,
+            email: None,
+            phone_office: None,
+            phone_mobile: None,
+            fax: None,
         }
     }
     /**Retrieve a contact
@@ -152,13 +177,40 @@ See endpoint docs at <https://help.getharvest.com/api-v2/clients-api/clients/con
 Retrieves the contact with the given ID. Returns a contact object and a 200 OK response code if a valid identifier was provided.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/clients-api/clients/contacts/#retrieve-a-contact>.*/
-    pub fn retrieve_contact(
-        &self,
-        contact_id: String,
-    ) -> request_model::RetrieveContactRequest {
-        request_model::RetrieveContactRequest {
+    pub fn retrieve_contact(&self, contact_id: &str) -> request::RetrieveContactRequest {
+        request::RetrieveContactRequest {
             client: &self,
-            contact_id,
+            contact_id: contact_id.to_owned(),
+        }
+    }
+    /**Delete a contact
+
+Delete a contact. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/clients-api/clients/contacts/#delete-a-contact>.*/
+    pub fn delete_contact(&self, contact_id: &str) -> request::DeleteContactRequest {
+        request::DeleteContactRequest {
+            client: &self,
+            contact_id: contact_id.to_owned(),
+        }
+    }
+    /**Update a contact
+
+Updates the specific contact by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a contact object and a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/clients-api/clients/contacts/#update-a-contact>.*/
+    pub fn update_contact(&self, contact_id: &str) -> request::UpdateContactRequest {
+        request::UpdateContactRequest {
+            client: &self,
+            contact_id: contact_id.to_owned(),
+            client_id: None,
+            title: None,
+            first_name: None,
+            last_name: None,
+            email: None,
+            phone_office: None,
+            phone_mobile: None,
+            fax: None,
         }
     }
     /**List all estimate item categories
@@ -170,8 +222,8 @@ The response contains an object with a estimate_item_categories property that co
 See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates/estimate-item-categories/#list-all-estimate-item-categories>.*/
     pub fn list_estimate_item_categories(
         &self,
-    ) -> request_model::ListEstimateItemCategoriesRequest {
-        request_model::ListEstimateItemCategoriesRequest {
+    ) -> request::ListEstimateItemCategoriesRequest {
+        request::ListEstimateItemCategoriesRequest {
             client: &self,
             updated_since: None,
             page: None,
@@ -185,11 +237,10 @@ Creates a new estimate item category object. Returns an estimate item category o
 See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates/estimate-item-categories/#create-an-estimate-item-category>.*/
     pub fn create_estimate_item_category(
         &self,
-        name: String,
-    ) -> request_model::CreateEstimateItemCategoryRequest {
-        request_model::CreateEstimateItemCategoryRequest {
+    ) -> request::CreateEstimateItemCategoryRequest {
+        request::CreateEstimateItemCategoryRequest {
             client: &self,
-            name,
+            name: None,
         }
     }
     /**Retrieve an estimate item category
@@ -199,11 +250,40 @@ Retrieves the estimate item category with the given ID. Returns an estimate item
 See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates/estimate-item-categories/#retrieve-an-estimate-item-category>.*/
     pub fn retrieve_estimate_item_category(
         &self,
-        estimate_item_category_id: String,
-    ) -> request_model::RetrieveEstimateItemCategoryRequest {
-        request_model::RetrieveEstimateItemCategoryRequest {
+        estimate_item_category_id: &str,
+    ) -> request::RetrieveEstimateItemCategoryRequest {
+        request::RetrieveEstimateItemCategoryRequest {
             client: &self,
-            estimate_item_category_id,
+            estimate_item_category_id: estimate_item_category_id.to_owned(),
+        }
+    }
+    /**Delete an estimate item category
+
+Delete an estimate item category. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates/estimate-item-categories/#delete-an-estimate-item-category>.*/
+    pub fn delete_estimate_item_category(
+        &self,
+        estimate_item_category_id: &str,
+    ) -> request::DeleteEstimateItemCategoryRequest {
+        request::DeleteEstimateItemCategoryRequest {
+            client: &self,
+            estimate_item_category_id: estimate_item_category_id.to_owned(),
+        }
+    }
+    /**Update an estimate item category
+
+Updates the specific estimate item category by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns an estimate item category object and a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates/estimate-item-categories/#update-an-estimate-item-category>.*/
+    pub fn update_estimate_item_category(
+        &self,
+        estimate_item_category_id: &str,
+    ) -> request::UpdateEstimateItemCategoryRequest {
+        request::UpdateEstimateItemCategoryRequest {
+            client: &self,
+            estimate_item_category_id: estimate_item_category_id.to_owned(),
+            name: None,
         }
     }
     /**List all estimates
@@ -213,8 +293,8 @@ Returns a list of your estimates. The estimates are returned sorted by issue dat
 The response contains an object with a estimates property that contains an array of up to per_page estimates. Each entry in the array is a separate estimate object. If no more estimates are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your estimates.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates/estimates/#list-all-estimates>.*/
-    pub fn list_estimates(&self) -> request_model::ListEstimatesRequest {
-        request_model::ListEstimatesRequest {
+    pub fn list_estimates(&self) -> request::ListEstimatesRequest {
+        request::ListEstimatesRequest {
             client: &self,
             client_id: None,
             updated_since: None,
@@ -230,33 +310,20 @@ See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates
 Creates a new estimate object. Returns an estimate object and a 201 Created response code if the call succeeded.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates/estimates/#create-an-estimate>.*/
-    pub fn create_estimate(
-        &self,
-        client_id: i64,
-        number: String,
-        purchase_order: String,
-        tax: f64,
-        tax2: f64,
-        discount: f64,
-        subject: String,
-        notes: String,
-        currency: String,
-        issue_date: String,
-        line_items: Vec<serde_json::Value>,
-    ) -> request_model::CreateEstimateRequest {
-        request_model::CreateEstimateRequest {
+    pub fn create_estimate(&self) -> request::CreateEstimateRequest {
+        request::CreateEstimateRequest {
             client: &self,
-            client_id,
-            number,
-            purchase_order,
-            tax,
-            tax2,
-            discount,
-            subject,
-            notes,
-            currency,
-            issue_date,
-            line_items,
+            client_id: None,
+            number: None,
+            purchase_order: None,
+            tax: None,
+            tax2: None,
+            discount: None,
+            subject: None,
+            notes: None,
+            currency: None,
+            issue_date: None,
+            line_items: None,
         }
     }
     /**Retrieve an estimate
@@ -266,11 +333,44 @@ Retrieves the estimate with the given ID. Returns an estimate object and a 200 O
 See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates/estimates/#retrieve-an-estimate>.*/
     pub fn retrieve_estimate(
         &self,
-        estimate_id: String,
-    ) -> request_model::RetrieveEstimateRequest {
-        request_model::RetrieveEstimateRequest {
+        estimate_id: &str,
+    ) -> request::RetrieveEstimateRequest {
+        request::RetrieveEstimateRequest {
             client: &self,
-            estimate_id,
+            estimate_id: estimate_id.to_owned(),
+        }
+    }
+    /**Delete an estimate
+
+Delete an estimate. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates/estimates/#delete-an-estimate>.*/
+    pub fn delete_estimate(&self, estimate_id: &str) -> request::DeleteEstimateRequest {
+        request::DeleteEstimateRequest {
+            client: &self,
+            estimate_id: estimate_id.to_owned(),
+        }
+    }
+    /**Update an estimate
+
+Updates the specific estimate by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns an estimate object and a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates/estimates/#update-an-estimate>.*/
+    pub fn update_estimate(&self, estimate_id: &str) -> request::UpdateEstimateRequest {
+        request::UpdateEstimateRequest {
+            client: &self,
+            estimate_id: estimate_id.to_owned(),
+            client_id: None,
+            number: None,
+            purchase_order: None,
+            tax: None,
+            tax2: None,
+            discount: None,
+            subject: None,
+            notes: None,
+            currency: None,
+            issue_date: None,
+            line_items: None,
         }
     }
     /**List all messages for an estimate
@@ -282,11 +382,11 @@ The response contains an object with an estimate_messages property that contains
 See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates/estimate-messages/#list-all-messages-for-an-estimate>.*/
     pub fn list_messages_for_estimate(
         &self,
-        estimate_id: String,
-    ) -> request_model::ListMessagesForEstimateRequest {
-        request_model::ListMessagesForEstimateRequest {
+        estimate_id: &str,
+    ) -> request::ListMessagesForEstimateRequest {
+        request::ListMessagesForEstimateRequest {
             client: &self,
-            estimate_id,
+            estimate_id: estimate_id.to_owned(),
             updated_since: None,
             page: None,
             per_page: None,
@@ -299,21 +399,32 @@ Creates a new estimate message object. Returns an estimate message object and a 
 See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates/estimate-messages/#create-an-estimate-message>.*/
     pub fn create_estimate_message(
         &self,
-        estimate_id: String,
-        event_type: String,
-        recipients: Vec<serde_json::Value>,
-        subject: String,
-        body: String,
-        send_me_a_copy: bool,
-    ) -> request_model::CreateEstimateMessageRequest {
-        request_model::CreateEstimateMessageRequest {
+        estimate_id: &str,
+    ) -> request::CreateEstimateMessageRequest {
+        request::CreateEstimateMessageRequest {
             client: &self,
-            estimate_id,
-            event_type,
-            recipients,
-            subject,
-            body,
-            send_me_a_copy,
+            estimate_id: estimate_id.to_owned(),
+            event_type: None,
+            recipients: None,
+            subject: None,
+            body: None,
+            send_me_a_copy: None,
+        }
+    }
+    /**Delete an estimate message
+
+Delete an estimate message. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/estimates-api/estimates/estimate-messages/#delete-an-estimate-message>.*/
+    pub fn delete_estimate_message(
+        &self,
+        estimate_id: &str,
+        message_id: &str,
+    ) -> request::DeleteEstimateMessageRequest {
+        request::DeleteEstimateMessageRequest {
+            client: &self,
+            estimate_id: estimate_id.to_owned(),
+            message_id: message_id.to_owned(),
         }
     }
     /**List all expense categories
@@ -323,10 +434,8 @@ Returns a list of your expense categories. The expense categories are returned s
 The response contains an object with a expense_categories property that contains an array of up to per_page expense categories. Each entry in the array is a separate expense category object. If no more expense categories are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your expense categories.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/expenses-api/expenses/expense-categories/#list-all-expense-categories>.*/
-    pub fn list_expense_categories(
-        &self,
-    ) -> request_model::ListExpenseCategoriesRequest {
-        request_model::ListExpenseCategoriesRequest {
+    pub fn list_expense_categories(&self) -> request::ListExpenseCategoriesRequest {
+        request::ListExpenseCategoriesRequest {
             client: &self,
             is_active: None,
             updated_since: None,
@@ -339,19 +448,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/expenses-api/expenses/e
 Creates a new expense category object. Returns an expense category object and a 201 Created response code if the call succeeded.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/expenses-api/expenses/expense-categories/#create-an-expense-category>.*/
-    pub fn create_expense_category(
-        &self,
-        name: String,
-        unit_name: String,
-        unit_price: f64,
-        is_active: bool,
-    ) -> request_model::CreateExpenseCategoryRequest {
-        request_model::CreateExpenseCategoryRequest {
+    pub fn create_expense_category(&self) -> request::CreateExpenseCategoryRequest {
+        request::CreateExpenseCategoryRequest {
             client: &self,
-            name,
-            unit_name,
-            unit_price,
-            is_active,
+            name: None,
+            unit_name: None,
+            unit_price: None,
+            is_active: None,
         }
     }
     /**Retrieve an expense category
@@ -361,11 +464,43 @@ Retrieves the expense category with the given ID. Returns an expense category ob
 See endpoint docs at <https://help.getharvest.com/api-v2/expenses-api/expenses/expense-categories/#retrieve-an-expense-category>.*/
     pub fn retrieve_expense_category(
         &self,
-        expense_category_id: String,
-    ) -> request_model::RetrieveExpenseCategoryRequest {
-        request_model::RetrieveExpenseCategoryRequest {
+        expense_category_id: &str,
+    ) -> request::RetrieveExpenseCategoryRequest {
+        request::RetrieveExpenseCategoryRequest {
             client: &self,
-            expense_category_id,
+            expense_category_id: expense_category_id.to_owned(),
+        }
+    }
+    /**Delete an expense category
+
+Delete an expense category. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/expenses-api/expenses/expense-categories/#delete-an-expense-category>.*/
+    pub fn delete_expense_category(
+        &self,
+        expense_category_id: &str,
+    ) -> request::DeleteExpenseCategoryRequest {
+        request::DeleteExpenseCategoryRequest {
+            client: &self,
+            expense_category_id: expense_category_id.to_owned(),
+        }
+    }
+    /**Update an expense category
+
+Updates the specific expense category by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns an expense category object and a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/expenses-api/expenses/expense-categories/#update-an-expense-category>.*/
+    pub fn update_expense_category(
+        &self,
+        expense_category_id: &str,
+    ) -> request::UpdateExpenseCategoryRequest {
+        request::UpdateExpenseCategoryRequest {
+            client: &self,
+            expense_category_id: expense_category_id.to_owned(),
+            name: None,
+            unit_name: None,
+            unit_price: None,
+            is_active: None,
         }
     }
     /**List all expenses
@@ -375,8 +510,8 @@ Returns a list of your expenses. If accessing this endpoint as an Administrator,
 The response contains an object with a expenses property that contains an array of up to per_page expenses. Each entry in the array is a separate expense object. If no more expenses are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your expenses.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/expenses-api/expenses/expenses/#list-all-expenses>.*/
-    pub fn list_expenses(&self) -> request_model::ListExpensesRequest {
-        request_model::ListExpensesRequest {
+    pub fn list_expenses(&self) -> request::ListExpensesRequest {
+        request::ListExpensesRequest {
             client: &self,
             user_id: None,
             client_id: None,
@@ -394,29 +529,18 @@ See endpoint docs at <https://help.getharvest.com/api-v2/expenses-api/expenses/e
 Creates a new expense object. Returns an expense object and a 201 Created response code if the call succeeded.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/expenses-api/expenses/expenses/#create-an-expense>.*/
-    pub fn create_expense(
-        &self,
-        user_id: i64,
-        project_id: i64,
-        expense_category_id: i64,
-        spent_date: String,
-        units: i64,
-        total_cost: f64,
-        notes: String,
-        billable: bool,
-        receipt: String,
-    ) -> request_model::CreateExpenseRequest {
-        request_model::CreateExpenseRequest {
+    pub fn create_expense(&self) -> request::CreateExpenseRequest {
+        request::CreateExpenseRequest {
             client: &self,
-            user_id,
-            project_id,
-            expense_category_id,
-            spent_date,
-            units,
-            total_cost,
-            notes,
-            billable,
-            receipt,
+            user_id: None,
+            project_id: None,
+            expense_category_id: None,
+            spent_date: None,
+            units: None,
+            total_cost: None,
+            notes: None,
+            billable: None,
+            receipt: None,
         }
     }
     /**Retrieve an expense
@@ -424,13 +548,41 @@ See endpoint docs at <https://help.getharvest.com/api-v2/expenses-api/expenses/e
 Retrieves the expense with the given ID. Returns an expense object and a 200 OK response code if a valid identifier was provided.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/expenses-api/expenses/expenses/#retrieve-an-expense>.*/
-    pub fn retrieve_expense(
-        &self,
-        expense_id: String,
-    ) -> request_model::RetrieveExpenseRequest {
-        request_model::RetrieveExpenseRequest {
+    pub fn retrieve_expense(&self, expense_id: &str) -> request::RetrieveExpenseRequest {
+        request::RetrieveExpenseRequest {
             client: &self,
-            expense_id,
+            expense_id: expense_id.to_owned(),
+        }
+    }
+    /**Delete an expense
+
+Delete an expense. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/expenses-api/expenses/expenses/#delete-an-expense>.*/
+    pub fn delete_expense(&self, expense_id: &str) -> request::DeleteExpenseRequest {
+        request::DeleteExpenseRequest {
+            client: &self,
+            expense_id: expense_id.to_owned(),
+        }
+    }
+    /**Update an expense
+
+Updates the specific expense by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns an expense object and a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/expenses-api/expenses/expenses/#update-an-expense>.*/
+    pub fn update_expense(&self, expense_id: &str) -> request::UpdateExpenseRequest {
+        request::UpdateExpenseRequest {
+            client: &self,
+            expense_id: expense_id.to_owned(),
+            project_id: None,
+            expense_category_id: None,
+            spent_date: None,
+            units: None,
+            total_cost: None,
+            notes: None,
+            billable: None,
+            receipt: None,
+            delete_receipt: None,
         }
     }
     /**List all invoice item categories
@@ -442,8 +594,8 @@ The response contains an object with a invoice_item_categories property that con
 See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoice-item-categories/#list-all-invoice-item-categories>.*/
     pub fn list_invoice_item_categories(
         &self,
-    ) -> request_model::ListInvoiceItemCategoriesRequest {
-        request_model::ListInvoiceItemCategoriesRequest {
+    ) -> request::ListInvoiceItemCategoriesRequest {
+        request::ListInvoiceItemCategoriesRequest {
             client: &self,
             updated_since: None,
             page: None,
@@ -457,11 +609,10 @@ Creates a new invoice item category object. Returns an invoice item category obj
 See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoice-item-categories/#create-an-invoice-item-category>.*/
     pub fn create_invoice_item_category(
         &self,
-        name: String,
-    ) -> request_model::CreateInvoiceItemCategoryRequest {
-        request_model::CreateInvoiceItemCategoryRequest {
+    ) -> request::CreateInvoiceItemCategoryRequest {
+        request::CreateInvoiceItemCategoryRequest {
             client: &self,
-            name,
+            name: None,
         }
     }
     /**Retrieve an invoice item category
@@ -471,11 +622,40 @@ Retrieves the invoice item category with the given ID. Returns an invoice item c
 See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoice-item-categories/#retrieve-an-invoice-item-category>.*/
     pub fn retrieve_invoice_item_category(
         &self,
-        invoice_item_category_id: String,
-    ) -> request_model::RetrieveInvoiceItemCategoryRequest {
-        request_model::RetrieveInvoiceItemCategoryRequest {
+        invoice_item_category_id: &str,
+    ) -> request::RetrieveInvoiceItemCategoryRequest {
+        request::RetrieveInvoiceItemCategoryRequest {
             client: &self,
-            invoice_item_category_id,
+            invoice_item_category_id: invoice_item_category_id.to_owned(),
+        }
+    }
+    /**Delete an invoice item category
+
+Delete an invoice item category. Deleting an invoice item category is only possible if use_as_service and use_as_expense are both false. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoice-item-categories/#delete-an-invoice-item-category>.*/
+    pub fn delete_invoice_item_category(
+        &self,
+        invoice_item_category_id: &str,
+    ) -> request::DeleteInvoiceItemCategoryRequest {
+        request::DeleteInvoiceItemCategoryRequest {
+            client: &self,
+            invoice_item_category_id: invoice_item_category_id.to_owned(),
+        }
+    }
+    /**Update an invoice item category
+
+Updates the specific invoice item category by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns an invoice item category object and a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoice-item-categories/#update-an-invoice-item-category>.*/
+    pub fn update_invoice_item_category(
+        &self,
+        invoice_item_category_id: &str,
+    ) -> request::UpdateInvoiceItemCategoryRequest {
+        request::UpdateInvoiceItemCategoryRequest {
+            client: &self,
+            invoice_item_category_id: invoice_item_category_id.to_owned(),
+            name: None,
         }
     }
     /**List all invoices
@@ -485,8 +665,8 @@ Returns a list of your invoices. The invoices are returned sorted by issue date,
 The response contains an object with a invoices property that contains an array of up to per_page invoices. Each entry in the array is a separate invoice object. If no more invoices are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your invoices.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoices/#list-all-invoices>.*/
-    pub fn list_invoices(&self) -> request_model::ListInvoicesRequest {
-        request_model::ListInvoicesRequest {
+    pub fn list_invoices(&self) -> request::ListInvoicesRequest {
+        request::ListInvoicesRequest {
             client: &self,
             client_id: None,
             project_id: None,
@@ -503,42 +683,25 @@ See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/i
 Creates a new invoice object. Returns an invoice object and a 201 Created response code if the call succeeded.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoices/#create-a-free-form-invoice>.*/
-    pub fn create_invoice(
-        &self,
-        client_id: i64,
-        retainer_id: i64,
-        estimate_id: i64,
-        number: String,
-        purchase_order: String,
-        tax: f64,
-        tax2: f64,
-        discount: f64,
-        subject: String,
-        notes: String,
-        currency: String,
-        issue_date: String,
-        due_date: String,
-        payment_term: String,
-        line_items: Vec<serde_json::Value>,
-    ) -> request_model::CreateInvoiceRequest {
-        request_model::CreateInvoiceRequest {
+    pub fn create_invoice(&self) -> request::CreateInvoiceRequest {
+        request::CreateInvoiceRequest {
             client: &self,
-            client_id,
-            retainer_id,
-            estimate_id,
-            number,
-            purchase_order,
-            tax,
-            tax2,
-            discount,
-            subject,
-            notes,
-            currency,
-            issue_date,
-            due_date,
-            payment_term,
+            client_id: None,
+            retainer_id: None,
+            estimate_id: None,
+            number: None,
+            purchase_order: None,
+            tax: None,
+            tax2: None,
+            discount: None,
+            subject: None,
+            notes: None,
+            currency: None,
+            issue_date: None,
+            due_date: None,
+            payment_term: None,
             line_items_import: None,
-            line_items,
+            line_items: None,
         }
     }
     /**Retrieve an invoice
@@ -546,13 +709,47 @@ See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/i
 Retrieves the invoice with the given ID. Returns an invoice object and a 200 OK response code if a valid identifier was provided.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoices/#retrieve-an-invoice>.*/
-    pub fn retrieve_invoice(
-        &self,
-        invoice_id: String,
-    ) -> request_model::RetrieveInvoiceRequest {
-        request_model::RetrieveInvoiceRequest {
+    pub fn retrieve_invoice(&self, invoice_id: &str) -> request::RetrieveInvoiceRequest {
+        request::RetrieveInvoiceRequest {
             client: &self,
-            invoice_id,
+            invoice_id: invoice_id.to_owned(),
+        }
+    }
+    /**Delete an invoice
+
+Delete an invoice. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoices/#delete-an-invoice>.*/
+    pub fn delete_invoice(&self, invoice_id: &str) -> request::DeleteInvoiceRequest {
+        request::DeleteInvoiceRequest {
+            client: &self,
+            invoice_id: invoice_id.to_owned(),
+        }
+    }
+    /**Update an invoice
+
+Updates the specific invoice by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns an invoice object and a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoices/#update-an-invoice>.*/
+    pub fn update_invoice(&self, invoice_id: &str) -> request::UpdateInvoiceRequest {
+        request::UpdateInvoiceRequest {
+            client: &self,
+            invoice_id: invoice_id.to_owned(),
+            client_id: None,
+            retainer_id: None,
+            estimate_id: None,
+            number: None,
+            purchase_order: None,
+            tax: None,
+            tax2: None,
+            discount: None,
+            subject: None,
+            notes: None,
+            currency: None,
+            issue_date: None,
+            due_date: None,
+            payment_term: None,
+            line_items: None,
         }
     }
     /**List all messages for an invoice
@@ -564,11 +761,11 @@ The response contains an object with an invoice_messages property that contains 
 See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoice-messages/#list-all-messages-for-an-invoice>.*/
     pub fn list_messages_for_invoice(
         &self,
-        invoice_id: String,
-    ) -> request_model::ListMessagesForInvoiceRequest {
-        request_model::ListMessagesForInvoiceRequest {
+        invoice_id: &str,
+    ) -> request::ListMessagesForInvoiceRequest {
+        request::ListMessagesForInvoiceRequest {
             client: &self,
-            invoice_id,
+            invoice_id: invoice_id.to_owned(),
             updated_since: None,
             page: None,
             per_page: None,
@@ -581,27 +778,35 @@ Creates a new invoice message object. Returns an invoice message object and a 20
 See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoice-messages/#create-an-invoice-message>.*/
     pub fn create_invoice_message(
         &self,
-        invoice_id: String,
-        event_type: String,
-        recipients: Vec<serde_json::Value>,
-        subject: String,
-        body: String,
-        include_link_to_client_invoice: bool,
-        attach_pdf: bool,
-        send_me_a_copy: bool,
-        thank_you: bool,
-    ) -> request_model::CreateInvoiceMessageRequest {
-        request_model::CreateInvoiceMessageRequest {
+        invoice_id: &str,
+    ) -> request::CreateInvoiceMessageRequest {
+        request::CreateInvoiceMessageRequest {
             client: &self,
-            invoice_id,
-            event_type,
-            recipients,
-            subject,
-            body,
-            include_link_to_client_invoice,
-            attach_pdf,
-            send_me_a_copy,
-            thank_you,
+            invoice_id: invoice_id.to_owned(),
+            event_type: None,
+            recipients: None,
+            subject: None,
+            body: None,
+            include_link_to_client_invoice: None,
+            attach_pdf: None,
+            send_me_a_copy: None,
+            thank_you: None,
+        }
+    }
+    /**Delete an invoice message
+
+Delete an invoice message. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoice-messages/#delete-an-invoice-message>.*/
+    pub fn delete_invoice_message(
+        &self,
+        invoice_id: &str,
+        message_id: &str,
+    ) -> request::DeleteInvoiceMessageRequest {
+        request::DeleteInvoiceMessageRequest {
+            client: &self,
+            invoice_id: invoice_id.to_owned(),
+            message_id: message_id.to_owned(),
         }
     }
     /**List all payments for an invoice
@@ -613,11 +818,11 @@ The response contains an object with an invoice_payments property that contains 
 See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoice-payments/#list-all-payments-for-an-invoice>.*/
     pub fn list_payments_for_invoice(
         &self,
-        invoice_id: String,
-    ) -> request_model::ListPaymentsForInvoiceRequest {
-        request_model::ListPaymentsForInvoiceRequest {
+        invoice_id: &str,
+    ) -> request::ListPaymentsForInvoiceRequest {
+        request::ListPaymentsForInvoiceRequest {
             client: &self,
-            invoice_id,
+            invoice_id: invoice_id.to_owned(),
             updated_since: None,
             page: None,
             per_page: None,
@@ -630,19 +835,31 @@ Creates a new invoice payment object. Returns an invoice payment object and a 20
 See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoice-payments/#create-an-invoice-payment>.*/
     pub fn create_invoice_payment(
         &self,
-        invoice_id: String,
-        amount: f64,
-        paid_at: String,
-        paid_date: String,
-        notes: String,
-    ) -> request_model::CreateInvoicePaymentRequest {
-        request_model::CreateInvoicePaymentRequest {
+        invoice_id: &str,
+    ) -> request::CreateInvoicePaymentRequest {
+        request::CreateInvoicePaymentRequest {
             client: &self,
-            invoice_id,
-            amount,
-            paid_at,
-            paid_date,
-            notes,
+            invoice_id: invoice_id.to_owned(),
+            amount: None,
+            paid_at: None,
+            paid_date: None,
+            notes: None,
+        }
+    }
+    /**Delete an invoice payment
+
+Delete an invoice payment. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoice-payments/#delete-an-invoice-payment>.*/
+    pub fn delete_invoice_payment(
+        &self,
+        invoice_id: &str,
+        payment_id: &str,
+    ) -> request::DeleteInvoicePaymentRequest {
+        request::DeleteInvoicePaymentRequest {
+            client: &self,
+            invoice_id: invoice_id.to_owned(),
+            payment_id: payment_id.to_owned(),
         }
     }
     /**List all projects
@@ -652,8 +869,8 @@ Returns a list of your projects. The projects are returned sorted by creation da
 The response contains an object with a projects property that contains an array of up to per_page projects. Each entry in the array is a separate project object. If no more projects are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your projects.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/projects/#list-all-projects>.*/
-    pub fn list_projects(&self) -> request_model::ListProjectsRequest {
-        request_model::ListProjectsRequest {
+    pub fn list_projects(&self) -> request::ListProjectsRequest {
+        request::ListProjectsRequest {
             client: &self,
             is_active: None,
             client_id: None,
@@ -667,51 +884,29 @@ See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/p
 Creates a new project object. Returns a project object and a 201 Created response code if the call succeeded.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/projects/#create-a-project>.*/
-    pub fn create_project(
-        &self,
-        client_id: i64,
-        name: String,
-        code: String,
-        is_active: bool,
-        is_billable: bool,
-        is_fixed_fee: bool,
-        bill_by: String,
-        hourly_rate: f64,
-        budget: f64,
-        budget_by: String,
-        budget_is_monthly: bool,
-        notify_when_over_budget: bool,
-        over_budget_notification_percentage: f64,
-        show_budget_to_all: bool,
-        cost_budget: f64,
-        cost_budget_include_expenses: bool,
-        fee: f64,
-        notes: String,
-        starts_on: String,
-        ends_on: String,
-    ) -> request_model::CreateProjectRequest {
-        request_model::CreateProjectRequest {
+    pub fn create_project(&self) -> request::CreateProjectRequest {
+        request::CreateProjectRequest {
             client: &self,
-            client_id,
-            name,
-            code,
-            is_active,
-            is_billable,
-            is_fixed_fee,
-            bill_by,
-            hourly_rate,
-            budget,
-            budget_by,
-            budget_is_monthly,
-            notify_when_over_budget,
-            over_budget_notification_percentage,
-            show_budget_to_all,
-            cost_budget,
-            cost_budget_include_expenses,
-            fee,
-            notes,
-            starts_on,
-            ends_on,
+            client_id: None,
+            name: None,
+            code: None,
+            is_active: None,
+            is_billable: None,
+            is_fixed_fee: None,
+            bill_by: None,
+            hourly_rate: None,
+            budget: None,
+            budget_by: None,
+            budget_is_monthly: None,
+            notify_when_over_budget: None,
+            over_budget_notification_percentage: None,
+            show_budget_to_all: None,
+            cost_budget: None,
+            cost_budget_include_expenses: None,
+            fee: None,
+            notes: None,
+            starts_on: None,
+            ends_on: None,
         }
     }
     /**Retrieve a project
@@ -719,13 +914,54 @@ See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/p
 Retrieves the project with the given ID. Returns a project object and a 200 OK response code if a valid identifier was provided.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/projects/#retrieve-a-project>.*/
-    pub fn retrieve_project(
-        &self,
-        project_id: String,
-    ) -> request_model::RetrieveProjectRequest {
-        request_model::RetrieveProjectRequest {
+    pub fn retrieve_project(&self, project_id: &str) -> request::RetrieveProjectRequest {
+        request::RetrieveProjectRequest {
             client: &self,
-            project_id,
+            project_id: project_id.to_owned(),
+        }
+    }
+    /**Delete a project
+
+Deletes a project and any time entries or expenses tracked to it.
+However, invoices associated with the project will not be deleted.
+If you don’t want the project’s time entries and expenses to be deleted, you should archive the project instead.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/projects/#delete-a-project>.*/
+    pub fn delete_project(&self, project_id: &str) -> request::DeleteProjectRequest {
+        request::DeleteProjectRequest {
+            client: &self,
+            project_id: project_id.to_owned(),
+        }
+    }
+    /**Update a project
+
+Updates the specific project by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a project object and a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/projects/#update-a-project>.*/
+    pub fn update_project(&self, project_id: &str) -> request::UpdateProjectRequest {
+        request::UpdateProjectRequest {
+            client: &self,
+            project_id: project_id.to_owned(),
+            client_id: None,
+            name: None,
+            code: None,
+            is_active: None,
+            is_billable: None,
+            is_fixed_fee: None,
+            bill_by: None,
+            hourly_rate: None,
+            budget: None,
+            budget_by: None,
+            budget_is_monthly: None,
+            notify_when_over_budget: None,
+            over_budget_notification_percentage: None,
+            show_budget_to_all: None,
+            cost_budget: None,
+            cost_budget_include_expenses: None,
+            fee: None,
+            notes: None,
+            starts_on: None,
+            ends_on: None,
         }
     }
     /**List all task assignments for a specific project
@@ -737,11 +973,11 @@ The response contains an object with a task_assignments property that contains a
 See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/task-assignments/#list-all-task-assignments-for-a-specific-project>.*/
     pub fn list_task_assignments_for_specific_project(
         &self,
-        project_id: String,
-    ) -> request_model::ListTaskAssignmentsForSpecificProjectRequest {
-        request_model::ListTaskAssignmentsForSpecificProjectRequest {
+        project_id: &str,
+    ) -> request::ListTaskAssignmentsForSpecificProjectRequest {
+        request::ListTaskAssignmentsForSpecificProjectRequest {
             client: &self,
-            project_id,
+            project_id: project_id.to_owned(),
             is_active: None,
             updated_since: None,
             page: None,
@@ -755,21 +991,16 @@ Creates a new task assignment object. Returns a task assignment object and a 201
 See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/task-assignments/#create-a-task-assignment>.*/
     pub fn create_task_assignment(
         &self,
-        project_id: String,
-        task_id: i64,
-        is_active: bool,
-        billable: bool,
-        hourly_rate: f64,
-        budget: f64,
-    ) -> request_model::CreateTaskAssignmentRequest {
-        request_model::CreateTaskAssignmentRequest {
+        project_id: &str,
+    ) -> request::CreateTaskAssignmentRequest {
+        request::CreateTaskAssignmentRequest {
             client: &self,
-            project_id,
-            task_id,
-            is_active,
-            billable,
-            hourly_rate,
-            budget,
+            project_id: project_id.to_owned(),
+            task_id: None,
+            is_active: None,
+            billable: None,
+            hourly_rate: None,
+            budget: None,
         }
     }
     /**Retrieve a task assignment
@@ -779,13 +1010,49 @@ Retrieves the task assignment with the given ID. Returns a task assignment objec
 See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/task-assignments/#retrieve-a-task-assignment>.*/
     pub fn retrieve_task_assignment(
         &self,
-        project_id: String,
-        task_assignment_id: String,
-    ) -> request_model::RetrieveTaskAssignmentRequest {
-        request_model::RetrieveTaskAssignmentRequest {
+        project_id: &str,
+        task_assignment_id: &str,
+    ) -> request::RetrieveTaskAssignmentRequest {
+        request::RetrieveTaskAssignmentRequest {
             client: &self,
-            project_id,
-            task_assignment_id,
+            project_id: project_id.to_owned(),
+            task_assignment_id: task_assignment_id.to_owned(),
+        }
+    }
+    /**Delete a task assignment
+
+Delete a task assignment. Deleting a task assignment is only possible if it has no time entries associated with it. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/task-assignments/#delete-a-task-assignment>.*/
+    pub fn delete_task_assignment(
+        &self,
+        project_id: &str,
+        task_assignment_id: &str,
+    ) -> request::DeleteTaskAssignmentRequest {
+        request::DeleteTaskAssignmentRequest {
+            client: &self,
+            project_id: project_id.to_owned(),
+            task_assignment_id: task_assignment_id.to_owned(),
+        }
+    }
+    /**Update a task assignment
+
+Updates the specific task assignment by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a task assignment object and a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/task-assignments/#update-a-task-assignment>.*/
+    pub fn update_task_assignment(
+        &self,
+        project_id: &str,
+        task_assignment_id: &str,
+    ) -> request::UpdateTaskAssignmentRequest {
+        request::UpdateTaskAssignmentRequest {
+            client: &self,
+            project_id: project_id.to_owned(),
+            task_assignment_id: task_assignment_id.to_owned(),
+            is_active: None,
+            billable: None,
+            hourly_rate: None,
+            budget: None,
         }
     }
     /**List all user assignments for a specific project
@@ -797,11 +1064,11 @@ The response contains an object with a user_assignments property that contains a
 See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/user-assignments/#list-all-user-assignments-for-a-specific-project>.*/
     pub fn list_user_assignments_for_specific_project(
         &self,
-        project_id: String,
-    ) -> request_model::ListUserAssignmentsForSpecificProjectRequest {
-        request_model::ListUserAssignmentsForSpecificProjectRequest {
+        project_id: &str,
+    ) -> request::ListUserAssignmentsForSpecificProjectRequest {
+        request::ListUserAssignmentsForSpecificProjectRequest {
             client: &self,
-            project_id,
+            project_id: project_id.to_owned(),
             user_id: None,
             is_active: None,
             updated_since: None,
@@ -816,23 +1083,17 @@ Creates a new user assignment object. Returns a user assignment object and a 201
 See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/user-assignments/#create-a-user-assignment>.*/
     pub fn create_user_assignment(
         &self,
-        project_id: String,
-        user_id: i64,
-        is_active: bool,
-        is_project_manager: bool,
-        use_default_rates: bool,
-        hourly_rate: f64,
-        budget: f64,
-    ) -> request_model::CreateUserAssignmentRequest {
-        request_model::CreateUserAssignmentRequest {
+        project_id: &str,
+    ) -> request::CreateUserAssignmentRequest {
+        request::CreateUserAssignmentRequest {
             client: &self,
-            project_id,
-            user_id,
-            is_active,
-            is_project_manager,
-            use_default_rates,
-            hourly_rate,
-            budget,
+            project_id: project_id.to_owned(),
+            user_id: None,
+            is_active: None,
+            is_project_manager: None,
+            use_default_rates: None,
+            hourly_rate: None,
+            budget: None,
         }
     }
     /**Retrieve a user assignment
@@ -842,13 +1103,50 @@ Retrieves the user assignment with the given ID. Returns a user assignment objec
 See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/user-assignments/#retrieve-a-user-assignment>.*/
     pub fn retrieve_user_assignment(
         &self,
-        project_id: String,
-        user_assignment_id: String,
-    ) -> request_model::RetrieveUserAssignmentRequest {
-        request_model::RetrieveUserAssignmentRequest {
+        project_id: &str,
+        user_assignment_id: &str,
+    ) -> request::RetrieveUserAssignmentRequest {
+        request::RetrieveUserAssignmentRequest {
             client: &self,
-            project_id,
-            user_assignment_id,
+            project_id: project_id.to_owned(),
+            user_assignment_id: user_assignment_id.to_owned(),
+        }
+    }
+    /**Delete a user assignment
+
+Delete a user assignment. Deleting a user assignment is only possible if it has no time entries or expenses associated with it. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/user-assignments/#delete-a-user-assignment>.*/
+    pub fn delete_user_assignment(
+        &self,
+        project_id: &str,
+        user_assignment_id: &str,
+    ) -> request::DeleteUserAssignmentRequest {
+        request::DeleteUserAssignmentRequest {
+            client: &self,
+            project_id: project_id.to_owned(),
+            user_assignment_id: user_assignment_id.to_owned(),
+        }
+    }
+    /**Update a user assignment
+
+Updates the specific user assignment by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a user assignment object and a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/user-assignments/#update-a-user-assignment>.*/
+    pub fn update_user_assignment(
+        &self,
+        project_id: &str,
+        user_assignment_id: &str,
+    ) -> request::UpdateUserAssignmentRequest {
+        request::UpdateUserAssignmentRequest {
+            client: &self,
+            project_id: project_id.to_owned(),
+            user_assignment_id: user_assignment_id.to_owned(),
+            is_active: None,
+            is_project_manager: None,
+            use_default_rates: None,
+            hourly_rate: None,
+            budget: None,
         }
     }
     /**Expense Categories Report
@@ -856,13 +1154,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/u
 See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/expense-reports/#expense-categories-report>.*/
     pub fn expense_categories_report(
         &self,
-        from: String,
-        to: String,
-    ) -> request_model::ExpenseCategoriesReportRequest {
-        request_model::ExpenseCategoriesReportRequest {
+        from: &str,
+        to: &str,
+    ) -> request::ExpenseCategoriesReportRequest {
+        request::ExpenseCategoriesReportRequest {
             client: &self,
-            from,
-            to,
+            from: from.to_owned(),
+            to: to.to_owned(),
             page: None,
             per_page: None,
         }
@@ -872,13 +1170,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/exp
 See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/expense-reports/#clients-report>.*/
     pub fn clients_expenses_report(
         &self,
-        from: String,
-        to: String,
-    ) -> request_model::ClientsExpensesReportRequest {
-        request_model::ClientsExpensesReportRequest {
+        from: &str,
+        to: &str,
+    ) -> request::ClientsExpensesReportRequest {
+        request::ClientsExpensesReportRequest {
             client: &self,
-            from,
-            to,
+            from: from.to_owned(),
+            to: to.to_owned(),
             page: None,
             per_page: None,
         }
@@ -888,13 +1186,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/exp
 See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/expense-reports/#projects-report>.*/
     pub fn projects_expenses_report(
         &self,
-        from: String,
-        to: String,
-    ) -> request_model::ProjectsExpensesReportRequest {
-        request_model::ProjectsExpensesReportRequest {
+        from: &str,
+        to: &str,
+    ) -> request::ProjectsExpensesReportRequest {
+        request::ProjectsExpensesReportRequest {
             client: &self,
-            from,
-            to,
+            from: from.to_owned(),
+            to: to.to_owned(),
             page: None,
             per_page: None,
         }
@@ -904,13 +1202,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/exp
 See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/expense-reports/#team-report>.*/
     pub fn team_expenses_report(
         &self,
-        from: String,
-        to: String,
-    ) -> request_model::TeamExpensesReportRequest {
-        request_model::TeamExpensesReportRequest {
+        from: &str,
+        to: &str,
+    ) -> request::TeamExpensesReportRequest {
+        request::TeamExpensesReportRequest {
             client: &self,
-            from,
-            to,
+            from: from.to_owned(),
+            to: to.to_owned(),
             page: None,
             per_page: None,
         }
@@ -920,8 +1218,8 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/exp
 The response contains an object with a results property that contains an array of up to per_page results. Each entry in the array is a separate result object. If no more results are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your results.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/project-budget-report/#project-budget-report>.*/
-    pub fn project_budget_report(&self) -> request_model::ProjectBudgetReportRequest {
-        request_model::ProjectBudgetReportRequest {
+    pub fn project_budget_report(&self) -> request::ProjectBudgetReportRequest {
+        request::ProjectBudgetReportRequest {
             client: &self,
             page: None,
             per_page: None,
@@ -933,13 +1231,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/pro
 See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/time-reports/#clients-report>.*/
     pub fn clients_time_report(
         &self,
-        from: String,
-        to: String,
-    ) -> request_model::ClientsTimeReportRequest {
-        request_model::ClientsTimeReportRequest {
+        from: &str,
+        to: &str,
+    ) -> request::ClientsTimeReportRequest {
+        request::ClientsTimeReportRequest {
             client: &self,
-            from,
-            to,
+            from: from.to_owned(),
+            to: to.to_owned(),
             page: None,
             per_page: None,
         }
@@ -949,13 +1247,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/tim
 See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/time-reports/#projects-report>.*/
     pub fn projects_time_report(
         &self,
-        from: String,
-        to: String,
-    ) -> request_model::ProjectsTimeReportRequest {
-        request_model::ProjectsTimeReportRequest {
+        from: &str,
+        to: &str,
+    ) -> request::ProjectsTimeReportRequest {
+        request::ProjectsTimeReportRequest {
             client: &self,
-            from,
-            to,
+            from: from.to_owned(),
+            to: to.to_owned(),
             page: None,
             per_page: None,
         }
@@ -963,15 +1261,11 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/tim
     /**Tasks Report
 
 See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/time-reports/#tasks-report>.*/
-    pub fn tasks_report(
-        &self,
-        from: String,
-        to: String,
-    ) -> request_model::TasksReportRequest {
-        request_model::TasksReportRequest {
+    pub fn tasks_report(&self, from: &str, to: &str) -> request::TasksReportRequest {
+        request::TasksReportRequest {
             client: &self,
-            from,
-            to,
+            from: from.to_owned(),
+            to: to.to_owned(),
             page: None,
             per_page: None,
         }
@@ -981,13 +1275,13 @@ See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/tim
 See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/time-reports/#team-report>.*/
     pub fn team_time_report(
         &self,
-        from: String,
-        to: String,
-    ) -> request_model::TeamTimeReportRequest {
-        request_model::TeamTimeReportRequest {
+        from: &str,
+        to: &str,
+    ) -> request::TeamTimeReportRequest {
+        request::TeamTimeReportRequest {
             client: &self,
-            from,
-            to,
+            from: from.to_owned(),
+            to: to.to_owned(),
             page: None,
             per_page: None,
         }
@@ -1001,13 +1295,13 @@ Note: Each request requires both the from and to parameters to be supplied in th
 See endpoint docs at <https://help.getharvest.com/api-v2/reports-api/reports/uninvoiced-report/#uninvoiced-report>.*/
     pub fn uninvoiced_report(
         &self,
-        from: String,
-        to: String,
-    ) -> request_model::UninvoicedReportRequest {
-        request_model::UninvoicedReportRequest {
+        from: &str,
+        to: &str,
+    ) -> request::UninvoicedReportRequest {
+        request::UninvoicedReportRequest {
             client: &self,
-            from,
-            to,
+            from: from.to_owned(),
+            to: to.to_owned(),
             page: None,
             per_page: None,
         }
@@ -1019,8 +1313,8 @@ Returns a list of roles in the account. The roles are returned sorted by creatio
 The response contains an object with a roles property that contains an array of up to per_page roles. Each entry in the array is a separate role object. If no more roles are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your roles.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/roles-api/roles/roles/#list-all-roles>.*/
-    pub fn list_roles(&self) -> request_model::ListRolesRequest {
-        request_model::ListRolesRequest {
+    pub fn list_roles(&self) -> request::ListRolesRequest {
+        request::ListRolesRequest {
             client: &self,
             page: None,
             per_page: None,
@@ -1031,15 +1325,11 @@ See endpoint docs at <https://help.getharvest.com/api-v2/roles-api/roles/roles/#
 Creates a new role object. Returns a role object and a 201 Created response code if the call succeeded.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/roles-api/roles/roles/#create-a-role>.*/
-    pub fn create_role(
-        &self,
-        name: String,
-        user_ids: Vec<i64>,
-    ) -> request_model::CreateRoleRequest {
-        request_model::CreateRoleRequest {
+    pub fn create_role(&self) -> request::CreateRoleRequest {
+        request::CreateRoleRequest {
             client: &self,
-            name,
-            user_ids,
+            name: None,
+            user_ids: None,
         }
     }
     /**Retrieve a role
@@ -1047,10 +1337,34 @@ See endpoint docs at <https://help.getharvest.com/api-v2/roles-api/roles/roles/#
 Retrieves the role with the given ID. Returns a role object and a 200 OK response code if a valid identifier was provided.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/roles-api/roles/roles/#retrieve-a-role>.*/
-    pub fn retrieve_role(&self, role_id: String) -> request_model::RetrieveRoleRequest {
-        request_model::RetrieveRoleRequest {
+    pub fn retrieve_role(&self, role_id: &str) -> request::RetrieveRoleRequest {
+        request::RetrieveRoleRequest {
             client: &self,
-            role_id,
+            role_id: role_id.to_owned(),
+        }
+    }
+    /**Delete a role
+
+Delete a role. Deleting a role will unlink it from any users it was assigned to. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/roles-api/roles/roles/#delete-a-role>.*/
+    pub fn delete_role(&self, role_id: &str) -> request::DeleteRoleRequest {
+        request::DeleteRoleRequest {
+            client: &self,
+            role_id: role_id.to_owned(),
+        }
+    }
+    /**Update a role
+
+Updates the specific role by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a role object and a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/roles-api/roles/roles/#update-a-role>.*/
+    pub fn update_role(&self, role_id: &str) -> request::UpdateRoleRequest {
+        request::UpdateRoleRequest {
+            client: &self,
+            role_id: role_id.to_owned(),
+            name: None,
+            user_ids: None,
         }
     }
     /**List all task assignments
@@ -1060,8 +1374,8 @@ Returns a list of your task assignments. The task assignments are returned sorte
 The response contains an object with a task_assignments property that contains an array of up to per_page task assignments. Each entry in the array is a separate task assignment object. If no more task assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your task assignments.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/task-assignments/#list-all-task-assignments>.*/
-    pub fn list_task_assignments(&self) -> request_model::ListTaskAssignmentsRequest {
-        request_model::ListTaskAssignmentsRequest {
+    pub fn list_task_assignments(&self) -> request::ListTaskAssignmentsRequest {
+        request::ListTaskAssignmentsRequest {
             client: &self,
             is_active: None,
             updated_since: None,
@@ -1076,8 +1390,8 @@ Returns a list of your tasks. The tasks are returned sorted by creation date, wi
 The response contains an object with a tasks property that contains an array of up to per_page tasks. Each entry in the array is a separate task object. If no more tasks are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your tasks.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/tasks-api/tasks/tasks/#list-all-tasks>.*/
-    pub fn list_tasks(&self) -> request_model::ListTasksRequest {
-        request_model::ListTasksRequest {
+    pub fn list_tasks(&self) -> request::ListTasksRequest {
+        request::ListTasksRequest {
             client: &self,
             is_active: None,
             updated_since: None,
@@ -1090,21 +1404,14 @@ See endpoint docs at <https://help.getharvest.com/api-v2/tasks-api/tasks/tasks/#
 Creates a new task object. Returns a task object and a 201 Created response code if the call succeeded.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/tasks-api/tasks/tasks/#create-a-task>.*/
-    pub fn create_task(
-        &self,
-        name: String,
-        billable_by_default: bool,
-        default_hourly_rate: f64,
-        is_default: bool,
-        is_active: bool,
-    ) -> request_model::CreateTaskRequest {
-        request_model::CreateTaskRequest {
+    pub fn create_task(&self) -> request::CreateTaskRequest {
+        request::CreateTaskRequest {
             client: &self,
-            name,
-            billable_by_default,
-            default_hourly_rate,
-            is_default,
-            is_active,
+            name: None,
+            billable_by_default: None,
+            default_hourly_rate: None,
+            is_default: None,
+            is_active: None,
         }
     }
     /**Retrieve a task
@@ -1112,10 +1419,37 @@ See endpoint docs at <https://help.getharvest.com/api-v2/tasks-api/tasks/tasks/#
 Retrieves the task with the given ID. Returns a task object and a 200 OK response code if a valid identifier was provided.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/tasks-api/tasks/tasks/#retrieve-a-task>.*/
-    pub fn retrieve_task(&self, task_id: String) -> request_model::RetrieveTaskRequest {
-        request_model::RetrieveTaskRequest {
+    pub fn retrieve_task(&self, task_id: &str) -> request::RetrieveTaskRequest {
+        request::RetrieveTaskRequest {
             client: &self,
-            task_id,
+            task_id: task_id.to_owned(),
+        }
+    }
+    /**Delete a task
+
+Delete a task. Deleting a task is only possible if it has no time entries associated with it. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/tasks-api/tasks/tasks/#delete-a-task>.*/
+    pub fn delete_task(&self, task_id: &str) -> request::DeleteTaskRequest {
+        request::DeleteTaskRequest {
+            client: &self,
+            task_id: task_id.to_owned(),
+        }
+    }
+    /**Update a task
+
+Updates the specific task by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a task object and a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/tasks-api/tasks/tasks/#update-a-task>.*/
+    pub fn update_task(&self, task_id: &str) -> request::UpdateTaskRequest {
+        request::UpdateTaskRequest {
+            client: &self,
+            task_id: task_id.to_owned(),
+            name: None,
+            billable_by_default: None,
+            default_hourly_rate: None,
+            is_default: None,
+            is_active: None,
         }
     }
     /**List all time entries
@@ -1125,8 +1459,8 @@ Returns a list of time entries. The time entries are returned sorted by spent_da
 The response contains an object with a time_entries property that contains an array of up to per_page time entries. Each entry in the array is a separate time entry object. If no more time entries are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your time entries.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/timesheets-api/timesheets/time-entries/#list-all-time-entries>.*/
-    pub fn list_time_entries(&self) -> request_model::ListTimeEntriesRequest {
-        request_model::ListTimeEntriesRequest {
+    pub fn list_time_entries(&self) -> request::ListTimeEntriesRequest {
+        request::ListTimeEntriesRequest {
             client: &self,
             user_id: None,
             client_id: None,
@@ -1149,28 +1483,18 @@ Creates a new time entry object. Returns a time entry object and a 201 Created r
 You should only use this method to create time entries when your account is configured to track time via duration. You can verify this by visiting the Settings page in your Harvest account or by checking if wants_timestamp_timers is false in the Company API.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/timesheets-api/timesheets/time-entries/#create-a-time-entry-via-duration>.*/
-    pub fn create_time_entry(
-        &self,
-        user_id: i64,
-        project_id: i64,
-        task_id: i64,
-        spent_date: String,
-        started_time: String,
-        ended_time: String,
-        notes: String,
-        hours: f64,
-    ) -> request_model::CreateTimeEntryRequest {
-        request_model::CreateTimeEntryRequest {
+    pub fn create_time_entry(&self) -> request::CreateTimeEntryRequest {
+        request::CreateTimeEntryRequest {
             client: &self,
-            user_id,
-            project_id,
-            task_id,
-            spent_date,
-            started_time,
-            ended_time,
-            notes,
+            user_id: None,
+            project_id: None,
+            task_id: None,
+            spent_date: None,
+            started_time: None,
+            ended_time: None,
+            notes: None,
             external_reference: None,
-            hours,
+            hours: None,
         }
     }
     /**Retrieve a time entry
@@ -1180,11 +1504,89 @@ Retrieves the time entry with the given ID. Returns a time entry object and a 20
 See endpoint docs at <https://help.getharvest.com/api-v2/timesheets-api/timesheets/time-entries/#retrieve-a-time-entry>.*/
     pub fn retrieve_time_entry(
         &self,
-        time_entry_id: String,
-    ) -> request_model::RetrieveTimeEntryRequest {
-        request_model::RetrieveTimeEntryRequest {
+        time_entry_id: &str,
+    ) -> request::RetrieveTimeEntryRequest {
+        request::RetrieveTimeEntryRequest {
             client: &self,
-            time_entry_id,
+            time_entry_id: time_entry_id.to_owned(),
+        }
+    }
+    /**Delete a time entry
+
+Delete a time entry. Deleting a time entry is only possible if it’s not closed and the associated project and task haven’t been archived.  However, Admins can delete closed entries. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/timesheets-api/timesheets/time-entries/#delete-a-time-entry>.*/
+    pub fn delete_time_entry(
+        &self,
+        time_entry_id: &str,
+    ) -> request::DeleteTimeEntryRequest {
+        request::DeleteTimeEntryRequest {
+            client: &self,
+            time_entry_id: time_entry_id.to_owned(),
+        }
+    }
+    /**Update a time entry
+
+Updates the specific time entry by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a time entry object and a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/timesheets-api/timesheets/time-entries/#update-a-time-entry>.*/
+    pub fn update_time_entry(
+        &self,
+        time_entry_id: &str,
+    ) -> request::UpdateTimeEntryRequest {
+        request::UpdateTimeEntryRequest {
+            client: &self,
+            time_entry_id: time_entry_id.to_owned(),
+            project_id: None,
+            task_id: None,
+            spent_date: None,
+            started_time: None,
+            ended_time: None,
+            hours: None,
+            notes: None,
+            external_reference: None,
+        }
+    }
+    /**Delete a time entry’s external reference
+
+Delete a time entry’s external reference. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/timesheets-api/timesheets/time-entries/#delete-a-time-entrys-external-reference>.*/
+    pub fn delete_time_entry_external_reference(
+        &self,
+        time_entry_id: &str,
+    ) -> request::DeleteTimeEntryExternalReferenceRequest {
+        request::DeleteTimeEntryExternalReferenceRequest {
+            client: &self,
+            time_entry_id: time_entry_id.to_owned(),
+        }
+    }
+    /**Restart a stopped time entry
+
+Restarting a time entry is only possible if it isn’t currently running. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/timesheets-api/timesheets/time-entries/#restart-a-stopped-time-entry>.*/
+    pub fn restart_stopped_time_entry(
+        &self,
+        time_entry_id: &str,
+    ) -> request::RestartStoppedTimeEntryRequest {
+        request::RestartStoppedTimeEntryRequest {
+            client: &self,
+            time_entry_id: time_entry_id.to_owned(),
+        }
+    }
+    /**Stop a running time entry
+
+Stopping a time entry is only possible if it’s currently running. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/timesheets-api/timesheets/time-entries/#stop-a-running-time-entry>.*/
+    pub fn stop_running_time_entry(
+        &self,
+        time_entry_id: &str,
+    ) -> request::StopRunningTimeEntryRequest {
+        request::StopRunningTimeEntryRequest {
+            client: &self,
+            time_entry_id: time_entry_id.to_owned(),
         }
     }
     /**List all user assignments
@@ -1194,8 +1596,8 @@ Returns a list of your projects user assignments, active and archived. The user 
 The response contains an object with a user_assignments property that contains an array of up to per_page user assignments. Each entry in the array is a separate user assignment object. If no more user assignments are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your user assignments.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/projects-api/projects/user-assignments/#list-all-user-assignments>.*/
-    pub fn list_user_assignments(&self) -> request_model::ListUserAssignmentsRequest {
-        request_model::ListUserAssignmentsRequest {
+    pub fn list_user_assignments(&self) -> request::ListUserAssignmentsRequest {
+        request::ListUserAssignmentsRequest {
             client: &self,
             user_id: None,
             is_active: None,
@@ -1211,8 +1613,8 @@ Returns a list of your users. The users are returned sorted by creation date, wi
 The response contains an object with a users property that contains an array of up to per_page users. Each entry in the array is a separate user object. If no more users are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your users.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/users/#list-all-users>.*/
-    pub fn list_users(&self) -> request_model::ListUsersRequest {
-        request_model::ListUsersRequest {
+    pub fn list_users(&self) -> request::ListUsersRequest {
+        request::ListUsersRequest {
             client: &self,
             is_active: None,
             updated_since: None,
@@ -1225,33 +1627,20 @@ See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/users/#
 Creates a new user object and sends an invitation email to the address specified in the email parameter. Returns a user object and a 201 Created response code if the call succeeded.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/users/#create-a-user>.*/
-    pub fn create_user(
-        &self,
-        first_name: String,
-        last_name: String,
-        email: String,
-        timezone: String,
-        has_access_to_all_future_projects: bool,
-        is_contractor: bool,
-        is_active: bool,
-        weekly_capacity: i64,
-        default_hourly_rate: f64,
-        cost_rate: f64,
-        roles: Vec<String>,
-    ) -> request_model::CreateUserRequest {
-        request_model::CreateUserRequest {
+    pub fn create_user(&self) -> request::CreateUserRequest {
+        request::CreateUserRequest {
             client: &self,
-            first_name,
-            last_name,
-            email,
-            timezone,
-            has_access_to_all_future_projects,
-            is_contractor,
-            is_active,
-            weekly_capacity,
-            default_hourly_rate,
-            cost_rate,
-            roles,
+            first_name: None,
+            last_name: None,
+            email: None,
+            timezone: None,
+            has_access_to_all_future_projects: None,
+            is_contractor: None,
+            is_active: None,
+            weekly_capacity: None,
+            default_hourly_rate: None,
+            cost_rate: None,
+            roles: None,
         }
     }
     /**Retrieve the currently authenticated user
@@ -1261,8 +1650,8 @@ Retrieves the currently authenticated user. Returns a user object and a 200 OK r
 See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/users/#retrieve-the-currently-authenticated-user>.*/
     pub fn retrieve_the_currently_authenticated_user(
         &self,
-    ) -> request_model::RetrieveTheCurrentlyAuthenticatedUserRequest {
-        request_model::RetrieveTheCurrentlyAuthenticatedUserRequest {
+    ) -> request::RetrieveTheCurrentlyAuthenticatedUserRequest {
+        request::RetrieveTheCurrentlyAuthenticatedUserRequest {
             client: &self,
         }
     }
@@ -1275,8 +1664,8 @@ The response contains an object with a project_assignments property that contain
 See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/project-assignments/#list-active-project-assignments-for-the-currently-authenticated-user>.*/
     pub fn list_active_project_assignments_for_the_currently_authenticated_user(
         &self,
-    ) -> request_model::ListActiveProjectAssignmentsForTheCurrentlyAuthenticatedUserRequest {
-        request_model::ListActiveProjectAssignmentsForTheCurrentlyAuthenticatedUserRequest {
+    ) -> request::ListActiveProjectAssignmentsForTheCurrentlyAuthenticatedUserRequest {
+        request::ListActiveProjectAssignmentsForTheCurrentlyAuthenticatedUserRequest {
             client: &self,
             page: None,
             per_page: None,
@@ -1287,10 +1676,43 @@ See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/project
 Retrieves the user with the given ID. Returns a user object and a 200 OK response code if a valid identifier was provided.
 
 See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/users/#retrieve-a-user>.*/
-    pub fn retrieve_user(&self, user_id: String) -> request_model::RetrieveUserRequest {
-        request_model::RetrieveUserRequest {
+    pub fn retrieve_user(&self, user_id: &str) -> request::RetrieveUserRequest {
+        request::RetrieveUserRequest {
             client: &self,
-            user_id,
+            user_id: user_id.to_owned(),
+        }
+    }
+    /**Delete a user
+
+Delete a user. Deleting a user is only possible if they have no time entries or expenses associated with them. Returns a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/users/#delete-a-user>.*/
+    pub fn delete_user(&self, user_id: &str) -> request::DeleteUserRequest {
+        request::DeleteUserRequest {
+            client: &self,
+            user_id: user_id.to_owned(),
+        }
+    }
+    /**Update a user
+
+Updates the specific user by setting the values of the parameters passed. Any parameters not provided will be left unchanged. Returns a user object and a 200 OK response code if the call succeeded.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/users/#update-a-user>.*/
+    pub fn update_user(&self, user_id: &str) -> request::UpdateUserRequest {
+        request::UpdateUserRequest {
+            client: &self,
+            user_id: user_id.to_owned(),
+            first_name: None,
+            last_name: None,
+            email: None,
+            timezone: None,
+            has_access_to_all_future_projects: None,
+            is_contractor: None,
+            is_active: None,
+            weekly_capacity: None,
+            default_hourly_rate: None,
+            cost_rate: None,
+            roles: None,
         }
     }
     /**List all billable rates for a specific user
@@ -1302,11 +1724,11 @@ The response contains an object with a billable_rates property that contains an 
 See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/billable-rates/#list-all-billable-rates-for-a-specific-user>.*/
     pub fn list_billable_rates_for_specific_user(
         &self,
-        user_id: String,
-    ) -> request_model::ListBillableRatesForSpecificUserRequest {
-        request_model::ListBillableRatesForSpecificUserRequest {
+        user_id: &str,
+    ) -> request::ListBillableRatesForSpecificUserRequest {
+        request::ListBillableRatesForSpecificUserRequest {
             client: &self,
-            user_id,
+            user_id: user_id.to_owned(),
             page: None,
             per_page: None,
         }
@@ -1323,15 +1745,13 @@ Creates a new billable rate object. Returns a billable rate object and a 201 Cre
 See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/billable-rates/#create-a-billable-rate>.*/
     pub fn create_billable_rate(
         &self,
-        user_id: String,
-        amount: f64,
-        start_date: String,
-    ) -> request_model::CreateBillableRateRequest {
-        request_model::CreateBillableRateRequest {
+        user_id: &str,
+    ) -> request::CreateBillableRateRequest {
+        request::CreateBillableRateRequest {
             client: &self,
-            user_id,
-            amount,
-            start_date,
+            user_id: user_id.to_owned(),
+            amount: None,
+            start_date: None,
         }
     }
     /**Retrieve a billable rate
@@ -1341,13 +1761,13 @@ Retrieves the billable rate with the given ID. Returns a billable rate object an
 See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/billable-rates/#retrieve-a-billable-rate>.*/
     pub fn retrieve_billable_rate(
         &self,
-        user_id: String,
-        billable_rate_id: String,
-    ) -> request_model::RetrieveBillableRateRequest {
-        request_model::RetrieveBillableRateRequest {
+        user_id: &str,
+        billable_rate_id: &str,
+    ) -> request::RetrieveBillableRateRequest {
+        request::RetrieveBillableRateRequest {
             client: &self,
-            user_id,
-            billable_rate_id,
+            user_id: user_id.to_owned(),
+            billable_rate_id: billable_rate_id.to_owned(),
         }
     }
     /**List all cost rates for a specific user
@@ -1359,11 +1779,11 @@ The response contains an object with a cost_rates property that contains an arra
 See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/cost-rates/#list-all-cost-rates-for-a-specific-user>.*/
     pub fn list_cost_rates_for_specific_user(
         &self,
-        user_id: String,
-    ) -> request_model::ListCostRatesForSpecificUserRequest {
-        request_model::ListCostRatesForSpecificUserRequest {
+        user_id: &str,
+    ) -> request::ListCostRatesForSpecificUserRequest {
+        request::ListCostRatesForSpecificUserRequest {
             client: &self,
-            user_id,
+            user_id: user_id.to_owned(),
             page: None,
             per_page: None,
         }
@@ -1378,17 +1798,12 @@ Creates a new cost rate object. Returns a cost rate object and a 201 Created res
 
 
 See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/cost-rates/#create-a-cost-rate>.*/
-    pub fn create_cost_rate(
-        &self,
-        user_id: String,
-        amount: f64,
-        start_date: String,
-    ) -> request_model::CreateCostRateRequest {
-        request_model::CreateCostRateRequest {
+    pub fn create_cost_rate(&self, user_id: &str) -> request::CreateCostRateRequest {
+        request::CreateCostRateRequest {
             client: &self,
-            user_id,
-            amount,
-            start_date,
+            user_id: user_id.to_owned(),
+            amount: None,
+            start_date: None,
         }
     }
     /**Retrieve a cost rate
@@ -1398,13 +1813,13 @@ Retrieves the cost rate with the given ID. Returns a cost rate object and a 200 
 See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/cost-rates/#retrieve-a-cost-rate>.*/
     pub fn retrieve_cost_rate(
         &self,
-        user_id: String,
-        cost_rate_id: String,
-    ) -> request_model::RetrieveCostRateRequest {
-        request_model::RetrieveCostRateRequest {
+        user_id: &str,
+        cost_rate_id: &str,
+    ) -> request::RetrieveCostRateRequest {
+        request::RetrieveCostRateRequest {
             client: &self,
-            user_id,
-            cost_rate_id,
+            user_id: user_id.to_owned(),
+            cost_rate_id: cost_rate_id.to_owned(),
         }
     }
     /**List active project assignments
@@ -1416,11 +1831,11 @@ The response contains an object with a project_assignments property that contain
 See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/project-assignments/#list-active-project-assignments>.*/
     pub fn list_active_project_assignments(
         &self,
-        user_id: String,
-    ) -> request_model::ListActiveProjectAssignmentsRequest {
-        request_model::ListActiveProjectAssignmentsRequest {
+        user_id: &str,
+    ) -> request::ListActiveProjectAssignmentsRequest {
+        request::ListActiveProjectAssignmentsRequest {
             client: &self,
-            user_id,
+            user_id: user_id.to_owned(),
             updated_since: None,
             page: None,
             per_page: None,

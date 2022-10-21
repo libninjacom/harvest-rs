@@ -1,7 +1,7 @@
 [package]
 name = "harvest-api"
 edition = "2021"
-version = "3.0.0"
+version = "4.0.0"
 description = "Harvest client, generated from the OpenAPI spec."
 homepage = "https://github.com/libninjacom/harvest-rs"
 documentation = "https://docs.rs/harvest-api"
@@ -30,4 +30,884 @@ plugin = false
 proc-macro = false
 edition = "2021"
 crate-type = ["rlib"]
+required-features = []
+
+[[example]]
+path = "examples/clients_expenses_report.rs"
+name = "clients_expenses_report"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/clients_time_report.rs"
+name = "clients_time_report"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_billable_rate.rs"
+name = "create_billable_rate"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_client.rs"
+name = "create_client"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_contact.rs"
+name = "create_contact"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_cost_rate.rs"
+name = "create_cost_rate"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_estimate.rs"
+name = "create_estimate"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_estimate_item_category.rs"
+name = "create_estimate_item_category"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_estimate_message.rs"
+name = "create_estimate_message"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_expense.rs"
+name = "create_expense"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_expense_category.rs"
+name = "create_expense_category"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_invoice.rs"
+name = "create_invoice"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_invoice_item_category.rs"
+name = "create_invoice_item_category"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_invoice_message.rs"
+name = "create_invoice_message"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_invoice_payment.rs"
+name = "create_invoice_payment"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_project.rs"
+name = "create_project"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_role.rs"
+name = "create_role"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_task.rs"
+name = "create_task"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_task_assignment.rs"
+name = "create_task_assignment"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_time_entry.rs"
+name = "create_time_entry"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_user.rs"
+name = "create_user"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/create_user_assignment.rs"
+name = "create_user_assignment"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_client.rs"
+name = "delete_client"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_contact.rs"
+name = "delete_contact"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_estimate.rs"
+name = "delete_estimate"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_estimate_item_category.rs"
+name = "delete_estimate_item_category"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_estimate_message.rs"
+name = "delete_estimate_message"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_expense.rs"
+name = "delete_expense"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_expense_category.rs"
+name = "delete_expense_category"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_invoice.rs"
+name = "delete_invoice"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_invoice_item_category.rs"
+name = "delete_invoice_item_category"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_invoice_message.rs"
+name = "delete_invoice_message"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_invoice_payment.rs"
+name = "delete_invoice_payment"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_project.rs"
+name = "delete_project"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_role.rs"
+name = "delete_role"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_task.rs"
+name = "delete_task"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_task_assignment.rs"
+name = "delete_task_assignment"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_time_entry.rs"
+name = "delete_time_entry"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_time_entry_external_reference.rs"
+name = "delete_time_entry_external_reference"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_user.rs"
+name = "delete_user"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/delete_user_assignment.rs"
+name = "delete_user_assignment"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/expense_categories_report.rs"
+name = "expense_categories_report"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_active_project_assignments.rs"
+name = "list_active_project_assignments"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_active_project_assignments_for_the_currently_authenticated_user.rs"
+name = "list_active_project_assignments_for_the_currently_authenticated_user"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_billable_rates_for_specific_user.rs"
+name = "list_billable_rates_for_specific_user"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_clients.rs"
+name = "list_clients"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_contacts.rs"
+name = "list_contacts"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_cost_rates_for_specific_user.rs"
+name = "list_cost_rates_for_specific_user"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_estimate_item_categories.rs"
+name = "list_estimate_item_categories"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_estimates.rs"
+name = "list_estimates"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_expense_categories.rs"
+name = "list_expense_categories"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_expenses.rs"
+name = "list_expenses"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_invoice_item_categories.rs"
+name = "list_invoice_item_categories"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_invoices.rs"
+name = "list_invoices"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_messages_for_estimate.rs"
+name = "list_messages_for_estimate"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_messages_for_invoice.rs"
+name = "list_messages_for_invoice"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_payments_for_invoice.rs"
+name = "list_payments_for_invoice"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_projects.rs"
+name = "list_projects"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_roles.rs"
+name = "list_roles"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_task_assignments.rs"
+name = "list_task_assignments"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_task_assignments_for_specific_project.rs"
+name = "list_task_assignments_for_specific_project"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_tasks.rs"
+name = "list_tasks"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_time_entries.rs"
+name = "list_time_entries"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_user_assignments.rs"
+name = "list_user_assignments"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_user_assignments_for_specific_project.rs"
+name = "list_user_assignments_for_specific_project"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/list_users.rs"
+name = "list_users"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/project_budget_report.rs"
+name = "project_budget_report"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/projects_expenses_report.rs"
+name = "projects_expenses_report"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/projects_time_report.rs"
+name = "projects_time_report"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/restart_stopped_time_entry.rs"
+name = "restart_stopped_time_entry"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_billable_rate.rs"
+name = "retrieve_billable_rate"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_client.rs"
+name = "retrieve_client"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_company.rs"
+name = "retrieve_company"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_contact.rs"
+name = "retrieve_contact"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_cost_rate.rs"
+name = "retrieve_cost_rate"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_estimate.rs"
+name = "retrieve_estimate"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_estimate_item_category.rs"
+name = "retrieve_estimate_item_category"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_expense.rs"
+name = "retrieve_expense"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_expense_category.rs"
+name = "retrieve_expense_category"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_invoice.rs"
+name = "retrieve_invoice"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_invoice_item_category.rs"
+name = "retrieve_invoice_item_category"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_project.rs"
+name = "retrieve_project"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_role.rs"
+name = "retrieve_role"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_task.rs"
+name = "retrieve_task"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_task_assignment.rs"
+name = "retrieve_task_assignment"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_the_currently_authenticated_user.rs"
+name = "retrieve_the_currently_authenticated_user"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_time_entry.rs"
+name = "retrieve_time_entry"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_user.rs"
+name = "retrieve_user"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/retrieve_user_assignment.rs"
+name = "retrieve_user_assignment"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/stop_running_time_entry.rs"
+name = "stop_running_time_entry"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/tasks_report.rs"
+name = "tasks_report"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/team_expenses_report.rs"
+name = "team_expenses_report"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/team_time_report.rs"
+name = "team_time_report"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/uninvoiced_report.rs"
+name = "uninvoiced_report"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_client.rs"
+name = "update_client"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_company.rs"
+name = "update_company"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_contact.rs"
+name = "update_contact"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_estimate.rs"
+name = "update_estimate"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_estimate_item_category.rs"
+name = "update_estimate_item_category"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_expense.rs"
+name = "update_expense"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_expense_category.rs"
+name = "update_expense_category"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_invoice.rs"
+name = "update_invoice"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_invoice_item_category.rs"
+name = "update_invoice_item_category"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_project.rs"
+name = "update_project"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_role.rs"
+name = "update_role"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_task.rs"
+name = "update_task"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_task_assignment.rs"
+name = "update_task_assignment"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_time_entry.rs"
+name = "update_time_entry"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_user.rs"
+name = "update_user"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_user_assignment.rs"
+name = "update_user_assignment"
+plugin = false
+proc-macro = false
+edition = "2021"
 required-features = []
