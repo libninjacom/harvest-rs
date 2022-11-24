@@ -17,6 +17,7 @@ async fn main() {
         .default_hourly_rate(1.0)
         .cost_rate(1.0)
         .roles(&["your roles"])
+        .access_roles(&["your access roles"])
         .send()
         .await
         .unwrap();

@@ -1,7 +1,7 @@
 [package]
 name = "harvest-api"
 edition = "2021"
-version = "4.0.0"
+version = "5.0.0"
 description = "Harvest client, generated from the OpenAPI spec."
 homepage = "https://github.com/libninjacom/harvest-rs"
 documentation = "https://docs.rs/harvest-api"
@@ -385,6 +385,14 @@ edition = "2021"
 required-features = []
 
 [[example]]
+path = "examples/list_assigned_teammates_for_specific_user.rs"
+name = "list_assigned_teammates_for_specific_user"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
 path = "examples/list_billable_rates_for_specific_user.rs"
 name = "list_billable_rates_for_specific_user"
 plugin = false
@@ -681,6 +689,14 @@ edition = "2021"
 required-features = []
 
 [[example]]
+path = "examples/retrieve_invoice_message_subject_and_body_for_specific_invoice.rs"
+name = "retrieve_invoice_message_subject_and_body_for_specific_invoice"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
 path = "examples/retrieve_project.rs"
 name = "retrieve_project"
 plugin = false
@@ -899,6 +915,14 @@ required-features = []
 [[example]]
 path = "examples/update_user.rs"
 name = "update_user"
+plugin = false
+proc-macro = false
+edition = "2021"
+required-features = []
+
+[[example]]
+path = "examples/update_user_assigned_teammates.rs"
+name = "update_user_assigned_teammates"
 plugin = false
 proc-macro = false
 edition = "2021"

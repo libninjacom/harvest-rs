@@ -793,6 +793,22 @@ See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/i
             thank_you: None,
         }
     }
+    /**Retrieve invoice message subject and body for specific invoice
+
+Returns the subject and body text as configured in Harvest of an invoice message for a specific invoice and a 200 OK response code if the call succeeded. Does not create the invoice message. If no parameters are passed, will return the subject and body of a general invoice message for the specific invoice.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/invoices-api/invoices/invoice-messages/#retrieve-invoice-message-subject-and-body-for-specific-invoice>.*/
+    pub fn retrieve_invoice_message_subject_and_body_for_specific_invoice(
+        &self,
+        invoice_id: &str,
+    ) -> request::RetrieveInvoiceMessageSubjectAndBodyForSpecificInvoiceRequest {
+        request::RetrieveInvoiceMessageSubjectAndBodyForSpecificInvoiceRequest {
+            client: &self,
+            invoice_id: invoice_id.to_owned(),
+            thank_you: None,
+            reminder: None,
+        }
+    }
     /**Delete an invoice message
 
 Delete an invoice message. Returns a 200 OK response code if the call succeeded.
@@ -1641,6 +1657,7 @@ See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/users/#
             default_hourly_rate: None,
             cost_rate: None,
             roles: None,
+            access_roles: None,
         }
     }
     /**Retrieve the currently authenticated user
@@ -1713,6 +1730,7 @@ See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/users/#
             default_hourly_rate: None,
             cost_rate: None,
             roles: None,
+            access_roles: None,
         }
     }
     /**List all billable rates for a specific user
@@ -1839,6 +1857,41 @@ See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/project
             updated_since: None,
             page: None,
             per_page: None,
+        }
+    }
+    /**List all assigned teammates for a specific user
+
+Returns a list of assigned teammates for the user identified by USER_ID. The USER_ID must belong to a user that is a Manager, if not, a 422 Unprocessable Entity status code will be returned.
+
+The response contains an object with a teammates property that contains an array of up to per_page teammates. Each entry in the array is a separate teammate object. If no more teammates are available, the resulting array will be empty. Several additional pagination properties are included in the response to simplify paginating your teammates.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/teammates/#list-all-assigned-teammates-for-a-specific-user>.*/
+    pub fn list_assigned_teammates_for_specific_user(
+        &self,
+        user_id: &str,
+    ) -> request::ListAssignedTeammatesForSpecificUserRequest {
+        request::ListAssignedTeammatesForSpecificUserRequest {
+            client: &self,
+            user_id: user_id.to_owned(),
+            page: None,
+            per_page: None,
+        }
+    }
+    /**Update a user’s assigned teammates
+
+Updates the the assigned teammates for a specific user. Returns list of assigned teammates and a 200 OK response code if the call succeeded. The USER_ID must belong to a user that is a Manager, if not, a 422 Unprocessable Entity status code will be returned.
+
+Adding teammates for the first time will add the people_manager access role to the Manager. Any IDs not included in the teammate_ids that are currently assigned will be unassigned from the Manager. Use an empty array to unassign all users. This will also remove the people_manager access role from the Manager.
+
+See endpoint docs at <https://help.getharvest.com/api-v2/users-api/users/teammates/#update-a-users-assigned-teammates>.*/
+    pub fn update_user_assigned_teammates(
+        &self,
+        user_id: &str,
+    ) -> request::UpdateUserAssignedTeammatesRequest {
+        request::UpdateUserAssignedTeammatesRequest {
+            client: &self,
+            user_id: user_id.to_owned(),
+            teammate_ids: None,
         }
     }
 }

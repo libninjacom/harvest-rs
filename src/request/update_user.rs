@@ -18,6 +18,7 @@ pub struct UpdateUserRequest<'a> {
     pub default_hourly_rate: Option<f64>,
     pub cost_rate: Option<f64>,
     pub roles: Option<Vec<String>>,
+    pub access_roles: Option<Vec<String>>,
 }
 impl<'a> UpdateUserRequest<'a> {
     pub async fn send(self) -> anyhow::Result<User> {
@@ -57,6 +58,9 @@ impl<'a> UpdateUserRequest<'a> {
         }
         if let Some(ref unwrapped) = self.roles {
             r = r.push_json(json!({ "roles" : unwrapped }));
+        }
+        if let Some(ref unwrapped) = self.access_roles {
+            r = r.push_json(json!({ "access_roles" : unwrapped }));
         }
         r = self.client.authenticate(r);
         let res = r.send().await.unwrap().error_for_status();
@@ -113,6 +117,16 @@ impl<'a> UpdateUserRequest<'a> {
     }
     pub fn roles(mut self, roles: impl IntoIterator<Item = impl AsRef<str>>) -> Self {
         self.roles = Some(roles.into_iter().map(|s| s.as_ref().to_owned()).collect());
+        self
+    }
+    pub fn access_roles(
+        mut self,
+        access_roles: impl IntoIterator<Item = impl AsRef<str>>,
+    ) -> Self {
+        self
+            .access_roles = Some(
+            access_roles.into_iter().map(|s| s.as_ref().to_owned()).collect(),
+        );
         self
     }
 }
